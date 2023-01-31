@@ -1,0 +1,134 @@
+﻿@model EmployeeTypeViewModel
+@{
+    ViewData["TitleMD"] = Model.fLang.title;
+    Layout = "~/Areas/MasterData/Views/Shared/_MasterDataForm.cshtml";
+}
+
+@section StyleMD{
+    <style>
+        .redStar {
+            color: red;
+        }
+    </style>
+}
+
+
+<div class="card" style="width: 100%;">
+    <div class="card-body">
+        <h5 class="card-title" style="color: black">@Model.fLang.title</h5>
+        <hr>
+        <div class="container">
+            <form asp-area="MasterData" asp-controller="EmployeeType" asp-action="Index" method="post" data-parsley-validate="parsley">
+
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="form-group row">
+                    <input type="hidden" name="empTypeId" id="empTypeId" value="0" />
+
+                    <label for="empType" class="col-sm-2 col-form-label">@Model.fLang.employeeTypeName <span style="float:right;" class="redStar">*</span></label>
+                    <div class="col-sm-10">
+                        <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" name="empType" id="empType">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="empTypeBn" class="col-sm-2 col-form-label">@Model.fLang.employeeTypeNameBn</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="empTypeBn" id="empTypeBn">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="charge" class="col-sm-2 col-form-label">@Model.fLang.charge <span style="float:right;" class="redStar">*</span></label>
+                    <div class="col-sm-10">
+                        <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" name="charge" id="charge">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="shortName" class="col-sm-2 col-form-label">@Model.fLang.shortName</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="shortName" id="shortName">
+                    </div>
+                </div>
+                <hr />
+                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                <button type="button" onclick="Refresh()" class="btn btn-danger btn-lg" style="float:right; margin-top:5px;margin-right:5px;"><i class="fas fa-sync"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<br />
+<hr />
+<div class="row clearfix">
+    <div class="col-12">
+        <div class="card mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">@Model.fLang.title</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <table class="table table-striped table-bordered table-responsive-lg table-responsive-sm" id="empTypeTable">
+                    <thead>
+                        <tr>
+                            <th>@Model.fLang.employeeTypeName</th>
+                            <th>@Model.fLang.employeeTypeNameBn</th>
+                            <th>@Model.fLang.shortName</th>
+                            <th>@Model.fLang.charge</th>
+                            <th>@Model.fLang.action</th>
+                    </thead>
+                    <tbody>
+                        @foreach (var data in Model.employeeTypes)
+                        {
+                            <tr>
+                                <td>@data.empType</td>
+                                <td>@data.empTypeBn</td>
+                                <td>@data.shortName</td>
+                                <td>@data.charge?.ToString("0.00")</td>
+                                <td>
+                                    <a class="btn btn-info" onclick="Edit(@data.Id, '@data.empType', '@data.empTypeBn', '@data.charge?.ToString("0.00")', '@data.shortName')" href="#"><i class="fa fa-edit"></i></a>
+                                    <button title="Remove" class="btn btn-danger" onclick="Remove(@data.Id)"><i class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section ScriptsMD{
+    <script>
+        function Remove(Id) {
+            chk = confirm('Do you want to delete this?');
+            if (chk) {
+                location.replace("/MasterData/Type/Delete/" + Id);
+            } else {
+                return false;
+            }
+        }
+
+        $(document).ready(function () {
+            $("#employeeType").addClass("active");
+            $('#empTypeTable').DataTable();
+        });
+
+        function Refresh() {
+            location.reload();
+        }
+
+        function Edit(Id, empType, empTypeBn, charge,shortName) {
+            $("#empTypeId").val(Id);
+            $("#empType").val(empType);
+            $("#empTypeBn").val(empTypeBn);
+            $("#charge").val(charge);
+            $("#shortName").val(shortName);
+        }
+    </script>
+}
+

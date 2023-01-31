@@ -1,0 +1,785 @@
+﻿@using CLUB.Services.Auth.Interfaces
+@using System
+@inject ILoggedinUser loggedinUser
+@{
+    string orgType = await loggedinUser.usersOrganization(User.Identity.Name);
+    List<string> userRoles = await loggedinUser.UsersRoles(User.Identity.Name);
+    int myEmpId = await loggedinUser.UserEmpId(User.Identity.Name);
+    string url = loggedinUser.UserAuthUrl(myEmpId);
+
+    if (url == null || url =="")
+    {
+        url = "images/user.png";
+    }
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <link rel="icon" href="~/images/Key-Club-International-Logo.jpg" type="image/x-icon" />
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>@ViewData["Title"] - CLUB</title>
+
+    <!-- Custom fonts for this template-->
+    <link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+    <!-- Custom Date Picker-->
+    <link href="https://unpkg.com/gijgo@1.9.11/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Custom styles for this page -->
+    <link href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+    <!-- Auto Complete -->
+    @*<link rel="stylesheet" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">*@
+
+    <!-- Custom styles for this template-->
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    @RenderSection("Style", required: false)
+
+    <style>
+        body {
+            font-size: 10pt !important;
+        }
+
+        table .btn {
+            font-size: 8pt !important;
+            padding: 3px 5px 3px 5px !important;
+        }
+
+        table th, table td {
+            /*padding: 2px 2px 2px 2px !important;*/
+            color: black !important;
+        }
+
+        .col-form-label {
+            color: #606066 !important;
+            font-weight: bold;
+            padding: 0 0 0 0;
+        }
+
+        .form-control {
+            color: #606066 !important;
+            font-size: 10pt !important;
+            padding: 1px 20px 1px 8px;
+            border: 1px solid #606066;
+            height: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 6px !important;
+        }
+
+        .gj-datepicker-bootstrap [role=right-icon] button {
+            border: 1px solid #606066 !important;
+        }
+
+            .gj-datepicker-bootstrap [role=right-icon] button .gj-icon {
+                top: 5px !important;
+            }
+
+        .nav .nav-item {
+            background: brown !important;
+            border-radius: 3px !important;
+        }
+
+        /*Parsly  Section*/
+        input.parsley-success,
+        select.parsley-success,
+        textarea.parsley-success {
+            color: #468847;
+            background-color: #DFF0D8;
+            border: 1px solid #D6E9C6;
+        }
+
+        input.parsley-error,
+        select.parsley-error,
+        textarea.parsley-error {
+            color: #B94A48;
+            background-color: #F2DEDE;
+            border: 1px solid #EED3D7;
+        }
+
+        .parsley-errors-list {
+            margin: 2px 0 3px;
+            padding: 0;
+            list-style-type: none;
+            font-size: 0.9em;
+            line-height: 0.9em;
+            opacity: 0;
+            transition: all .3s ease-in;
+            -o-transition: all .3s ease-in;
+            -moz-transition: all .3s ease-in;
+            -webkit-transition: all .3s ease-in;
+        }
+
+            .parsley-errors-list.filled {
+                opacity: 1;
+            }
+
+        .parsley-type, .parsley-required, .parsley-equalto {
+            color: #ff0000;
+        }
+        /*Parsly  Section*/
+
+        .identity-box {
+            color: black;
+            font-weight: bolder;
+            text-align: right;
+            background: #d4d6d8;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .identity-box-center {
+            color: black;
+            font-weight: bolder;
+            text-align: center;
+            background: #eff2f4;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .dt-button {
+            display: inline-block;
+            font-weight: 700;
+            color: #858796;
+            text-align: center;
+            vertical-align: middle;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            background-color: transparent;
+            border: 1px solid transparent;
+            padding: .375rem .75rem;
+            font-size: 8pt;
+            line-height: 1.5;
+            border-radius: .35rem;
+            -webkit-transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+            transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+            transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+            transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out,-webkit-box-shadow .15s ease-in-out;
+        }
+
+        .buttons-excel {
+            color: #fff;
+            background-color: #36b9cc;
+            border-color: #36b9cc;
+        }
+
+        .buttons-print {
+            color: #fff;
+            background-color: #1cc88a;
+            border-color: #1cc88a;
+        }
+
+        .multiple-select {
+            width: 100% !important;
+        }
+
+        .ms-choice {
+            color: #606066 !important;
+            font-size: 10pt !important;
+            padding: 1px 20px 1px 8px;
+            border: 1px solid #606066;
+            height: 30px;
+            width: 100% !important;
+            max-width: 1000px;
+        }
+
+        .buttons-excel {
+            color: #fff;
+            background-color: #36b9cc;
+            border-color: #36b9cc;
+        }
+
+        .buttons-print {
+            color: #fff;
+            background-color: #1cc88a;
+            border-color: #1cc88a;
+        }
+
+        .buttons-csv {
+            color: white !important;
+            background-color: green !important;
+            border: 1px solid green !important;
+        }
+        .brandName {
+            font-weight: bolder;
+            color: darkblue;
+            font-size: 18pt;
+            padding-left: 5px;
+        }
+        @@media screen and (max-width: 480px) {
+            .brandName {
+                font-size: 12pt;
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand navbar-light bg-white topbar static-top shadow">
+
+        <img src="~/images/Key-Club-International-Logo.jpg" style="height:124%;" />
+        <span class="brandName">Bangladesh Engineers Club Ltd.</span>
+
+        <!-- Sidebar Toggle (Topbar) -->
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+        </button>
+
+        <!-- Topbar Navbar -->
+        <ul class="navbar-nav ml-auto">
+            @*<li class="nav-item no-arrow" style="margin-top: 20px;">
+                    <div class="btn-group" role="group" aria-label="Basic example">
+                        <button id="lanENG" type="button" style="font-size:10px;" class="btn btn-info">ENG</button>
+                        <button id="lanBAN" type="button" style="font-size:10px;" class="btn btn-success">বাংলা</button>
+                    </div>
+                </li>
+                <div class="topbar-divider d-none d-sm-block"></div>*@
+
+            <!-- Nav Item - User Information -->
+            <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">@User.Identity.Name</span>
+                    <img class="img-profile rounded-circle" src="~/@url">
+                </a>
+                <!-- Dropdown - User Information -->
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="/Employee/InfoView/Index/@myEmpId">
+                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                        Profile
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#changePasswordModal">
+                        <i class="fas fa-user-cog fa-sm fa-fw mr-2 text-gray-400"></i>
+                        Change Password
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                        Logout
+                    </a>
+                </div>
+            </li>
+        </ul>
+
+    </nav>
+    <!-- End of Topbar -->
+
+    <div id="page-top">
+        <!-- Page Wrapper -->
+        <div id="wrapper">
+
+            <!-- Sidebar -->
+            <ul class="navbar-nav sidebar sidebar-dark accordion" style="font-weight: bolder; background: brown;background-image: linear-gradient(180deg, #24C6DC 0%, #514A9D 70%)" id="accordionSidebar">
+
+                <!-- Divider -->
+                <hr class="sidebar-divider my-0">
+
+                <!-- Nav Item - Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Home" asp-action="Index">
+                        @*<i class="fas fa-fw fa-tachometer-alt"></i>*@
+                        <i class="fas fa-home"></i>
+                        <span style="color:white;">Home</span>
+                    </a>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                        <i class="fas fa-database"></i>
+                        <span style="color:white;">Member Information</span>
+                    </a>
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Employee" asp-controller="Info" asp-action="AllEmployeeList">Member List</a>
+                            <a class="collapse-item" asp-area="Employee" asp-controller="Info" asp-action="Create">Add Member</a>
+                            <a class="collapse-item" asp-area="Auth" asp-controller="User" asp-action="Index">Member Login Access</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseThree" aria-expanded="true" aria-controls="collapseTwo">
+                        <i class="fas fa-cogs"></i>
+                        <span style="color:white;">Master Data</span>
+                    </a>
+                    <div id="collapseThree" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="MasterData" asp-controller="Award" asp-action="Index">Master Data</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#eventInfo" aria-expanded="true" aria-controls="eventInfo">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span style="color:white;">Events</span>
+                    </a>
+                    <div id="eventInfo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Event" asp-controller="EventInfo" asp-action="Create">Create Event</a>
+                            @*<a class="collapse-item" asp-area="Event" asp-controller="EventInfo" asp-action="Index">Event List</a>*@
+                            <a class="collapse-item" asp-area="Event" asp-controller="EventInfo" asp-action="AGMparticipantList">Day Out List 2023</a>
+                            <a class="collapse-item" asp-controller="Home" asp-action="RegisterClubNew">Day Out Registration 2023</a>
+
+                        </div>
+                    </div>
+                </li>
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#accountingInfo" aria-expanded="true" aria-controls="eventInfo">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span style="color:white;">Accounting</span>
+                    </a>
+                    <div id="accountingInfo" class="collapse" aria-labelledby="headingTweenty" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Accounting" asp-controller="Income" asp-action="CreateDeposit">Deposit</a>
+                            <a class="collapse-item" asp-area="Accounting" asp-controller="Income" asp-action="CreateIncome">Income</a>
+                            <a class="collapse-item" asp-area="Accounting" asp-controller="Income" asp-action="CreateExpense">Expense</a>
+
+                        </div>
+                    </div>
+                </li>
+
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "style=display:none" : "")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "style=display:none" : "")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#event" aria-expanded="true" aria-controls="event">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span style="color:white;">Events</span>
+                    </a>
+                    <div id="event" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Event" asp-controller="EventInfo" asp-action="EventList">Event List</a>
+                            @if (User.Identity.Name == "0006" || User.Identity.Name == "0012" || User.Identity.Name == "0005" || User.Identity.Name == "opus")
+                            {
+                                <a class="collapse-item" asp-area="Event" asp-controller="EventInfo" asp-action="AGMparticipantList">Day Out 2023 List</a>
+
+                            }
+                            <a class="collapse-item" asp-controller="Home" asp-action="RegisterClubNew">Day Out 2022 Registration</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#feeDetails" aria-expanded="true" aria-controls="feeDetails">
+                        <i class="fas fa-money-bill"></i>
+                        <span style="color:white;">Fee Details</span>
+                    </a>
+                    <div id="feeDetails" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Employee" asp-controller="Fees" asp-action="Index">Fee Info</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0">
+
+                <!-- Nav Item - Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="Grettings" asp-controller="Grettings" asp-action="Index">
+                        <i class="fas fa-gift"></i>
+                        <span style="color:white;">Greetings</span>
+                    </a>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0">
+
+                <!-- Nav Item - Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link" asp-area="Forum" asp-controller="SponsorShip" asp-action="Index">
+                        <i class="fas fa-gift"></i>
+                        <span style="color:white;">Sponsorship</span>
+                    </a>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#News" aria-expanded="true" aria-controls="News">
+                        <i class="fas fa-newspaper"></i>
+                        <span style="color:white;">News</span>
+                    </a>
+                    <div id="News" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="News" asp-controller="NewsInfo" asp-action="Create">Create News</a>
+                            <a class="collapse-item" asp-area="News" asp-controller="NewsInfo" asp-action="NewsList">News List</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "style=display:none" : "")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "style=display:none" : "")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#NewsList" aria-expanded="true" aria-controls="NewsList">
+                        <i class="fas fa-newspaper"></i>
+                        <span style="color:white;">News</span>
+                    </a>
+                    <div id="NewsList" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="News" asp-controller="NewsInfo" asp-action="NewsList">News List</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#Notice" aria-expanded="true" aria-controls="Notice">
+                        <i class="fas fa-list"></i>
+                        <span style="color:white;">Notice</span>
+                    </a>
+                    <div id="Notice" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Notice" asp-controller="Notice" asp-action="Create">Create Notice</a>
+                            <a class="collapse-item" asp-area="Notice" asp-controller="Notice" asp-action="Index">Create Notice Author</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "style=display:none" : "")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "style=display:none" : "")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#NoticeList" aria-expanded="true" aria-controls="NoticeList">
+                        <i class="fas fa-list"></i>
+                        <span style="color:white;">Notice</span>
+                    </a>
+                    <div id="NoticeList" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Notice" asp-controller="Notice" asp-action="Create">All Notice</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#Gallery" aria-expanded="true" aria-controls="Gallery">
+                        <i class="fas fa-image"></i>
+                        <span style="color:white;">Gallery</span>
+                    </a>
+                    <div id="Gallery" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Gallery" asp-controller="Gallery" asp-action="Index">Create Gallery</a>
+                            <a class="collapse-item" asp-area="Gallery" asp-controller="Gallery" asp-action="Image">Upload Images</a>
+                            <a class="collapse-item" asp-area="Gallery" asp-controller="Gallery" asp-action="Video">Upload Videos</a>
+                            <a class="collapse-item" asp-area="Gallery" asp-controller="Gallery" asp-action="VideoGallery">Video Album</a>
+                            <a class="collapse-item" asp-area="Gallery" asp-controller="Gallery" asp-action="ImageGallery">Photo Album</a>
+                        </div>
+                    </div>
+                </li>
+
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#Fees" aria-expanded="true" aria-controls="Fees">
+                        <i class="fas fa-adjust"></i>
+                        <span style="color:white;">Fees</span>
+                    </a>
+                    <div id="Fees" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Employee" asp-controller="Fees" asp-action="OpeningBalance">Add Opening Balance</a>
+                            <a class="collapse-item" asp-area="Employee" asp-controller="FeesApprove" asp-action="Index">Approve / Reject</a>
+                        </div>
+                    </div>
+                </li>
+
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#Bulk" aria-expanded="true" aria-controls="Bulk">
+                        <i class="fas fa-paper-plane"></i>
+                        <span style="color:white;">Bulk SMS/Email</span>
+                    </a>
+                    <div id="Bulk" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Bulk" asp-controller="BulkSMSEmail" asp-action="Index">SMS/Email</a>
+                            <a class="collapse-item" asp-area="Bulk" asp-controller="BulkSMSEmail" asp-action="Group"> Groups Information</a>
+                        </div>
+                    </div>
+                </li>
+
+
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0" @(userRoles.Contains("admin") ? "style=display:none" : "")>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+
+                <li class="nav-item" @(userRoles.Contains("admin") ? "style=display:none" : "")>
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#userGallery" aria-expanded="true" aria-controls="userGallery">
+                        <i class="fas fa-image"></i>
+                        <span style="color:white;">Gallery</span>
+                    </a>
+                    <div id="userGallery" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                            <a class="collapse-item" asp-area="Gallery" asp-controller="Gallery" asp-action="ImageGallery">Images</a>
+                            <a class="collapse-item" asp-area="Gallery" asp-controller="Gallery" asp-action="VideoGallery">Videos</a>
+                        </div>
+                    </div>
+                </li>
+                @if (User.Identity.Name == "opus")
+                {
+                    <!-- Divider -->
+                    <hr class="sidebar-divider  my-0" >
+
+                    <!-- Nav Item - Pages Collapse Menu -->
+
+                    <li class="nav-item">
+                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#userproxy" aria-expanded="true" aria-controls="userGallery">
+                            <i class="fas fa-image"></i>
+                            <span style="color:white;">Settings</span>
+                        </a>
+                        <div id="userproxy" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                            <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                                <a class="collapse-item" asp-area="Auth" asp-controller="Account" asp-action="ProxyUserList">Proxy</a>
+                            </div>
+                        </div>
+                    </li>
+                }
+                    <!-- Divider -->
+                    <hr class="sidebar-divider  my-0">
+
+                    <!-- Nav Item - Pages Collapse Menu -->
+
+                    <li class="nav-item" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#Forum" aria-expanded="true" aria-controls="Forum">
+                            <i class="fas fa-comments"></i>
+                            <span style="color:white;">Forum</span>
+                        </a>
+                        <div id="Forum" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                            <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                                <a class="collapse-item" asp-area="Forum" asp-controller="Topic" asp-action="Index">Topic List</a>
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- Sidebar Toggler (Sidebar) -->
+                    <div class="text-center d-none d-md-inline">
+                        <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                    </div>
+
+                </ul>
+            <!-- End of Sidebar -->
+            <!-- Content Wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
+                <!-- Main Content -->
+                <div id="content">
+                    <!-- Begin Page Content -->
+                    <div class="container-fluid" style="padding: 0 8px;">
+                        @RenderBody()
+                    </div>
+                    <!-- /.container-fluid -->
+                </div>
+                <!-- End of Main Content -->
+                <!-- Footer -->
+                <footer class="sticky-footer bg-white">
+                    <div class="container my-auto">
+                        <div class="copyright text-center my-auto">
+                            <span>Copyright &copy; <a href="https://www.opus-bd.com/" target="_blank" style="text-decoration:none;"> OPUS Technology Ltd. @DateTime.Now.Year</a></span>
+                        </div>
+                    </div>
+                </footer>
+                <!-- End of Footer -->
+
+            </div>
+            <!-- End of Content Wrapper -->
+
+        </div>
+        <!-- End of Page Wrapper -->
+    </div>
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="row" style="width:100%;">
+                        <div class="col-2">
+                            <img src="~/images/Key-Club-International-Logo.jpg" style="height:50px; width:50px;" />
+                        </div>
+                        <div class="col-9">
+                            <h5 class="modal-title text-center" id="exampleModalLabel" style="font-size: 20px;color: darkblue;padding-top: 14px;">Bangladesh Engineers Club Ltd.</h5>
+                        </div>
+                        <div class="col-1">
+                            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">×</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <form asp- method="post" asp-area="Auth" asp-controller="Account" asp-action="Logout" id="logoutForm" class="navbar-right" onsubmit="return remoeLocalItem()">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal-->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <img src="~/images/Key-Club-International-Logo.jpg" style="height:50px;" />
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form asp-area="Auth" asp-controller="Account" asp-action="ChangePassword" method="post" role="form" data-parsley-validate="parsley">
+                        <div class="form-group row">
+                            <label class="col-md-4 col-lg-4 col-sm-12" style="color:black;" for="OldPassword">Current Password<span style="float:right;">:</span></label>
+                            <div class="col-md-8 col-lg-8 col-sm-12">
+                                <input type="password" class="form-control" id="OldPassword" name="OldPassword" autocomplete="off" data-parsley-required="true" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-4 col-lg-4 col-sm-12" style="color:black;" for="Password">New Password<span style="float:right;">:</span></label>
+                            <div class="col-md-8 col-lg-8 col-sm-12">
+                                <input type="password" class="form-control" id="Password" name="Password" autocomplete="off" data-parsley-required="true" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-4 col-lg-4 col-sm-12" style="color:black;" for="ConfirmPassword">Confirm Password<span style="float:right;">:</span></label>
+                            <div class="col-md-8 col-lg-8 col-sm-12">
+                                <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" autocomplete="off" data-parsley-required="true" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12 col-lg-12 col-sm-12">
+                                <button type="submit" style="float:right;" class="btn btn-success">Submit</button>
+                                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="~/vendor/jquery/jquery.min.js"></script>
+    <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Page level plugins Datatable  -->
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
+    <!-- Page level plugins Datatable END  -->
+    <!-- Custom Date Picker-->
+    <script src="https://unpkg.com/gijgo@1.9.11/js/gijgo.min.js" type="text/javascript"></script>
+
+    <!-- Auto Complete -->
+    @*<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>*@
+
+    <!-- Core plugin JavaScript-->
+    <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="~/js/sb-admin-2.min.js"></script>
+
+    <!-- parsly Validation -->
+    <script src="https://parsleyjs.org/dist/parsley.js"></script>
+
+    <!-- Sweet Alert 2-->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+
+
+    <!-- Comon Ajax Lib -->
+    <script src="~/js/common.js"></script>
+    <script>
+        function setCookie(cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            location.reload(true);
+        }
+
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+            $('#lanBAN').click(function () { setCookie('lang', 'bn', 30); });
+            $('#lanENG').click(function () { setCookie('lang', 'en', 30); });
+        });
+
+        function remoeLocalItem() {
+            localStorage.removeItem('WelcomeModal');
+            return true;
+        }
+
+    </script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>

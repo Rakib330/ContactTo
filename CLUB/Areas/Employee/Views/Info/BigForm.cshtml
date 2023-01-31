@@ -1,0 +1,3034 @@
+﻿@model InfoViewModel
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity
+@using CLUB.Services.Auth.Interfaces
+@using System
+@inject ILoggedinUser loggedinUser
+@{
+    string orgType = await loggedinUser.usersOrganization(User.Identity.Name);
+    List<string> userRoles = await loggedinUser.UsersRoles(User.Identity.Name);
+    int myEmpId = await loggedinUser.UserEmpId(User.Identity.Name);
+}
+
+@{
+    ViewData["Title"] = "Member Information";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Style{
+    <link rel="stylesheet" href="https://unpkg.com/multiple-select@1.3.1/dist/multiple-select.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <style>
+        .redStar {
+            color: red;
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            z-index: 99;
+            border-radius: 4px;
+            background-color: #f4511e;
+            border: none;
+            color: #FFFFFF;
+            text-align: center;
+            font-size: 22px;
+            width: 158px;
+            transition: all 0.5s;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        .form-section {
+            border-bottom: 1px solid lightgray;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            font-size: 140%;
+            background-color: #f2f6f5;
+            padding: 1%;
+        }
+
+        .form-control {
+            height: auto !important;
+        }
+
+        .card-header {
+            padding-bottom: 0;
+            border-bottom: 0;
+        }
+
+        .active-tab {
+            border-bottom: 3px solid green !important;
+        }
+
+        .dt-button {
+            background: transparent !important;
+            border: none !important;
+        }
+
+            .dt-button.active {
+                border-bottom: 2px solid black !important;
+            }
+
+        .error {
+            color: red;
+            font-size: 10px;
+        }
+
+        .append-custom {
+            display: block;
+            margin: 0 auto;
+            text-align: center;
+            padding-top: 5px;
+            background: lightgray;
+            border: 1px solid;
+            height: 32px;
+            cursor: pointer;
+        }
+
+        .panel-heading {
+            background: lightgray;
+            padding: 10px;
+            margin: 0;
+        }
+
+        .panel {
+            margin: 2px 0px;
+        }
+
+        .panel-heading {
+            background: lightgray;
+            padding: 10px;
+            margin: 0;
+        }
+
+        .panel-title {
+            margin: 0;
+            font-size: 25px;
+        }
+
+            .panel-title a {
+                text-decoration: none !important;
+            }
+
+                .panel-title a i {
+                    font-size: 20px;
+                }
+
+        .choosen {
+            background: skyblue !important;
+        }
+
+        .gtabs {
+            position: relative;
+        }
+
+        .gtab {
+            background: #eee;
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            visibility: hidden;
+            padding: 10px;
+            top: 5px;
+            transition: all 0.4s;
+        }
+
+        .active {
+            opacity: 1;
+            visibility: visible;
+            top: 0;
+            transition: all 0.4s;
+        }
+    </style>
+
+}
+<div class="card-header row">
+    <div class="card-body row">
+        <div class="col-md-4 col-sm-6">
+            <img id="user_img_current" style="height:250px;width:250px;border-radius: 120px;" src="~/@Model.photograph?.url" alt="" class="img-thumbnail float-left">
+            <i class="fa fa-camera" data-toggle="modal" data-target="#updateEmpPhotoModal" style="position:relative;margin-top:120px;margin-left:-22px"></i>
+            <input type="hidden" id="hiddenFile" />
+        </div>
+        <div class="col-md-5 col-sm-5" style="color: black; font-size: 15px; padding-top: 60px;">
+            <span style="font-weight:bold;">Code : </span><span>@Model.employeeInfo?.employeeCode</span><br />
+            <span style="font-weight:bold;">Employee Name : </span><span>@Model.employeeInfo?.nameEnglish</span><br />
+            <span style="font-weight:bold;">Designation : </span><span>@Model.employeeInfo?.designation</span><br />
+            <span style="font-weight:bold;">Contact : </span><span>@Model.employeeInfo?.mobileNumberPersonal</span><br />
+            <span style="font-weight:bold;">Email : </span><span>@Model.employeeInfo?.emailAddressPersonal</span><br />
+        </div>
+        <div class="col-md-3 col-sm-1">
+            @*<a class='btn btn-info' style="float:right;" data-toggle='tooltip' title='Print' target='_blank' href='/HRPMSEmployee/InfoView/pdspdf/@Model.employeeInfo.Id'><i class='fa fa-print'></i></a>*@
+            <a class='btn btn-default fa-3x' style="float:right;" data-toggle='tooltip' href='/Employee/Info/EditGrid/@Model.employeeInfo.Id'><i class='fa fa-address-card'></i></a>
+        </div>
+    </div>
+    <div id="accordion" class="col-sm-12">
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingOne">
+                <h5 class="mb-0">
+                    <button class="btn btn-link" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Personal Information
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                    <form asp-area="Employee" asp-controller="Info" asp-action="CreateBigForm" method="post" data-parsley-validate="parsley">
+
+                        <div asp-validation-summary="All" class="text-danger"></div>
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group row">
+                                    <label for="employeeCode" class="col-sm-5 col-form-label">Employee ID </label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-6">
+                                        <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" id="employeeCode" value="@Model.employeeInfo?.employeeCode" name="employeeCode" @(userRoles.Contains("admin") ? "" : "readonly")>
+                                        <input type="hidden" id="employeeID" name="employeeID" value="@Model.employeeInfo?.Id">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group row">
+                                    <label for="employeeType" class="col-sm-5 col-form-label">Employee Type</label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    @*<div class="col-sm-6" @(userRoles.Contains("admin") ? "" : "style=display:none")>
+                                        <select class="form-control" id="employeeType" name="employeeType" data-parsley-required="true">
+                                            <option value="">Select</option>
+                                            @foreach (var data in Model.employeeTypes)
+                                            {
+                                                <option value="@data.Id">@data.empType</option>
+                                            }
+                                        </select>
+                                    </div>*@
+                                    <div class="col-sm-6">
+                                        @*@(userRoles.Contains("admin") ? "style=display:none" : "")*@
+                                        <input type="text" class="form-control" readonly value="@Model.employeeInfo?.employeeType?.empType" />
+                                        <input type="hidden" value="@Model.employeeInfo?.employeeTypeId" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                <div class="form-group row">
+                                    <label for="dateOfMembership" class="col-sm-5 col-form-label">Membership Date</label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-6">
+                                        <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" id="dateOfMembership" value="@Model.employeeInfo?.joiningDateGovtService?.ToString("MM/dd/yyyy")" name="dateOfMembership">
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="nameEnglish" class="col-md-2 col-sm-2 col-form-label">Name</label>
+                            <label for="nameEnglish" class="col-sm-1 col-form-label">English <span class="redStar">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" id="nameEnglish" value="@Model.employeeInfo?.nameEnglish" name="nameEnglish">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="nameBangla" class="col-md-2 col-sm-2 col-form-label"></label>
+                            <label for="nameBangla" class="col-sm-1 col-form-label">Bangla</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="nameBangla" value="@Model.employeeInfo?.nameBangla" name="nameBangla">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="motherNameEnglish" class="col-md-2 col-sm-2 col-form-label">MotherName</label>
+                            <label for="motherNameEnglish" class="col-sm-1 col-form-label">English <span class="redStar">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" id="motherNameEnglish" value="@Model.employeeInfo?.motherNameEnglish" name="motherNameEnglish">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="motherNameBangla" class="col-md-2 col-sm-2 col-form-label"></label>
+                            <label for="motherNameBangla" class="col-sm-1 col-form-label">Bangla</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="motherNameBangla" value="@Model.employeeInfo?.motherNameBangla" name="motherNameBangla">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="fatherNameEnglish" class="col-md-2 col-sm-2 col-form-label">FatherName</label>
+                            <label for="fatherNameEnglish" class="col-sm-1 col-form-label">English<span class="redStar">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" id="fatherNameEnglish" value="@Model.employeeInfo?.fatherNameEnglish" name="fatherNameEnglish">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label for="fatherNameBangla" class="col-md-2 col-sm-2 col-form-label"></label>
+                            <label for="fatherNameBangla" class="col-sm-1 col-form-label">Bangla</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="fatherNameBangla" value="@Model.employeeInfo?.fatherNameBangla" name="fatherNameBangla">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="nationalID" class="col-sm-3 col-form-label">NationalID </label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-8">
+                                        <input type="text" data-parsley-required="true" data-parsley-length="[10, 30]" data-parsley-trigger="keyup" class="form-control" id="nationalID" value="@Model.employeeInfo?.nationalID" name="nationalID">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="gpfAcNo" class="col-sm-4 col-form-label">GpfAcNo</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control" id="gpfAcNo" value="@Model.employeeInfo?.gpfAcNo" name="gpfAcNo">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="nationality" class="col-sm-3 col-form-label">Nationality</label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="nationality" name="nationality" data-parsley-required="true">
+                                            <option value="Bangladeshi">Bangladeshi</option>
+                                            <option value="NRB">NRB</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="birthPlace" class="col-sm-3 col-form-label">BirthPlace </label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-8">
+                                        <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" id="birthPlace" value="@Model.employeeInfo?.birthPlace" name="birthPlace">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="dateOfBirth" class="col-sm-3 col-form-label">DateOfBirth </label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-8">
+                                        <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control datePicker" id="dateOfBirth" value="@Model.employeeInfo?.dateOfBirth?.ToString("MM/dd/yyyy")" name="dateOfBirth">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="skills" class="col-sm-3 col-form-label">Skill</label>
+                                    <span class="redStar col-sm-1"></span>
+                                    <div class="col-sm-8">
+                                        <select class="form-control multiple-select skills" width="100%" multiple="multiple" name="skills" id="skills" style="width: 285px;">
+                                            @foreach (var data in Model.spacialSkills)
+                                            {
+                                                <option value="@data.Id">@data.skilName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="religion" class="col-sm-3 col-form-label">Religion</label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="religion" name="religion" data-parsley-required="true">
+                                            <option value="">Select</option>
+                                            @foreach (var data in Model.religions)
+                                            {
+                                                <option value="@data.Id">@data.name</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="gender" class="col-sm-3 col-form-label">Gender</label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="gender" name="gender" data-parsley-required="true">
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="bloodGroup" class="col-sm-4 col-form-label">BloodGroup</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="bloodGroup" name="bloodGroup">
+                                            <option value="">Select</option>
+                                            <option value="O-">O-</option>
+                                            <option value="O+">O+</option>
+                                            <option value="A-">A-</option>
+                                            <option value="A+">A+</option>
+                                            <option value="B-">B-</option>
+                                            <option value="B+">B+</option>
+                                            <option value="AB-">AB-</option>
+                                            <option value="AB+">AB+</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="maritalStatus" class="col-sm-3 col-form-label">Marital Status </label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="maritalStatus" name="maritalStatus" data-parsley-required="true">
+                                            <option value="">Select</option>
+                                            <option value="Married">Married</option>
+                                            <option value="Unmarried">Unmarried</option>
+                                            <option value="Single">Single</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="freedomFighter" class="col-sm-4 col-form-label">FreedomFighter</label>
+                                    <div class="col-sm-8">
+                                        <select class="form-control" id="freedomFighter" name="freedomFighter">
+                                            <option value="No">No</option>
+                                            <option value="Yes">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="freedomFighterNo" class="col-sm-4 col-form-label">Freedom Fighter No</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" data-parsley-length="[2, 30]" data-parsley-trigger="keyup" class="form-control" id="freedomFighterNo" value="@Model.employeeInfo?.freedomFighterNo" name="freedomFighterNo">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="telephoneOffice" class="col-sm-4 col-form-label">Telephone Office</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" data-parsley-length="[6, 20]" data-parsley-trigger="keyup" class="form-control" id="telephoneOffice" value="@Model.employeeInfo?.telephoneOffice" name="telephoneOffice">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="telephoneResidence" class="col-sm-4 col-form-label">Telephone Residence </label>
+                                    <div class="col-sm-8">
+                                        <input type="text" data-parsley-length="[6, 20]" data-parsley-trigger="keyup" class="form-control" id="telephoneResidence" value="@Model.employeeInfo?.telephoneResidence" name="telephoneResidence">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="emailAddress" class="col-sm-4 col-form-label">Email Address</label>
+                                    <div class="col-sm-8">
+                                        <input data-parsley-type="email" data-parsley-trigger="keyup" class="form-control" id="emailAddress" value="@Model.employeeInfo?.emailAddress" name="emailAddress">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="emailAddressPersonal" class="col-sm-4 col-form-label">Email Address Personal</label>
+                                    <div class="col-sm-8">
+                                        <input data-parsley-type="email" data-parsley-trigger="keyup" class="form-control" id="emailAddressPersonal" value="@Model.employeeInfo?.emailAddressPersonal" name="emailAddressPersonal">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="mobileNumberOffice" class="col-sm-3 col-form-label">Mobile Number Office</label>
+                                    <span class="redStar col-sm-1">*</span>
+                                    <div class="col-sm-8">
+                                        <input type="text" data-parsley-required="true" data-parsley-length="[6, 20]" data-parsley-trigger="keyup" class="form-control" id="mobileNumberOffice" value="@Model.employeeInfo?.mobileNumberOffice" name="mobileNumberOffice">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group row">
+                                    <label for="mobileNumberPersonal" class="col-sm-4 col-form-label">Mobile Number Personal</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" data-parsley-required="true" data-parsley-length="[6, 20]" data-parsley-trigger="keyup" class="form-control" id="mobileNumberPersonal" value="@Model.employeeInfo?.mobileNumberPersonal" name="mobileNumberPersonal">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingTwo">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Educational Qualification
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="card" style="width: 100%;">
+                        <div class="card-body">
+
+                            <hr>
+                            <div class="container">
+                                <form asp-area="Employee" asp-controller="EducationalQualification" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                    <div asp-validation-summary="All" class="text-danger"></div>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group row">
+                                                <label for="levelOfEducation" class="col-sm-3 col-form-label">Level Of Education </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control" name="levelOfEducation" id="levelOfEducation" data-parsley-required="true">
+                                                        <option value="">Select </option>
+                                                    </select>
+                                                    <input type="hidden" name="employeeId" value="@Model.employeeInfo.Id">
+                                                    <input type="hidden" id="educationId" name="educationId" value="0">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="degree" class="col-sm-3 col-form-label">Degree </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control" name="degreeId" id="degreeId" data-parsley-required="true">
+                                                        <option value="">Select </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="country" class="col-sm-3 col-form-label">Subject </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control" name="reldegreesubjectId" id="reldegreesubjectId" data-parsley-required="true">
+                                                        <option value="">Select </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="country" class="col-sm-3 col-form-label">Organization </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control" name="organizationId" id="organizationId" data-parsley-required="true">
+                                                        <option value="">Select </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-6">
+                                            <div class="form-group row">
+                                                <label for="instritution" class="col-sm-3 col-form-label">Instritution </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" id="institution" value="" name="institution" data-parsley-required="true" data-parsley-trigger="keyup">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="result" class="col-sm-3 col-form-label">Result </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control" name="resultId" id="resultId" data-parsley-required="true">
+                                                        <option value="">Select </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row" id="gradeDiv">
+                                                <label for="result" class="col-sm-3 col-form-label">Grade </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <input data-parsley-length="[1, 4]" class="form-control" id="grade" name="grade" data-parsley-required="true" data-parsley-trigger="keyup">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row" id="divisionDiv">
+                                                <label for="result" class="col-sm-3 col-form-label">Grade </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <select class="form-control" id="division" name="grade" data-parsley-required="true">
+                                                        <option value="1st">1st</option>
+                                                        <option value="2nd">2nd</option>
+                                                        <option value="3rd">3rd</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="passingYear" class="col-sm-3 col-form-label">Passing Year</label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <input data-parsley-type="number" min="1" data-parsley-length="[4, 4]" data-parsley-trigger="keyup" class="form-control" id="passingYear" value="" name="passingYear" data-parsley-required="true" data-parsley-error-message="This value length is invalid. It should be 4 characters">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <br />
+                    <hr />
+                    <div class="row clearfix">
+                        <div class="col-12">
+                            <div class="card mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Educational Qualification</h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <table class="table table-striped table-bordered" id="educationalTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Degree</th>
+                                                <th>Institution</th>
+                                                <th>Passing Year</th>
+                                                <th>Grade</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var data in Model?.educationalQualifications)
+                                            {
+                                                <tr>
+                                                    <td>@data.degree.degreeName</td>
+                                                    <td>@data.institution</td>
+                                                    <td>@data.passingYear</td>
+                                                    <td>@data.grade</td>
+                                                    <td>
+                                                        <a class="btn btn-success" href="#headingTwo" onclick="EditE(@data.Id,'@data.degree.levelofeducationId','@data.degreeId','@data.reldegreesubjectId','@data.organizationId','@data.institution','@data.resultId','@data.grade','@data.passingYear')"><i class="fa fa-edit"></i></a>
+                                                        <a class="btn btn-danger" href="#headingTwo" onclick="RemoveE(@data.Id,@data.employeeId)"><i class="fa fa-trash-alt"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingspouse">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapsespouse" aria-expanded="false" aria-controls="collapsespouse">
+                        Spouse Information
+                    </button>
+                </h5>
+            </div>
+            <div id="collapsespouse" class="collapse show" aria-labelledby="headingspouse" data-parent="#accordion">
+
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+
+                        <hr>
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="Spouse" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                                <div class="form-group row">
+                                    <label for="spouseName" class="col-md-2 col-sm-2 col-form-label">Spouse Name <span class="redStar">*</span></label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input data-parsley-pattern="^[a-z A-Z ]+$" data-parsley-trigger="keyup" type="text" class="form-control" id="spouseName" value="" name="spouseName" data-parsley-required="true">
+                                        <input type="hidden" id="employeeID" name="employeeID" value="@Model.employeeInfo?.Id">
+                                        <input type="hidden" id="spouseID" name="spouseID" value="0">
+                                    </div>
+
+                                    <label for="spouseNameBN" class="col-md-2 col-sm-2 col-form-label">Spouse Name (Bangla)</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="spouseNameBN" value="" name="spouseNameBN">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="homeDistrict" class="col-md-2 col-sm-2 col-form-label">Home District</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="homeDistrictSP" value="" name="homeDistrict">
+                                    </div>
+
+                                    <label for="emailAddress" class="col-md-2 col-sm-2 col-form-label">Email Address</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" data-parsley-type="email" data-parsley-trigger="keyup" class="form-control" id="emailAddressSP" value="" name="emailAddress">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="dateOfBirth" class="col-md-2 col-sm-2 col-form-label">Date Of Birth <span class="redStar">*</span></label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="dateOfBirthSP" value="" name="dateOfBirth" data-parsley-required="true">
+                                    </div>
+
+                                    <label for="dateOfMarriage" class="col-md-2 col-sm-2 col-form-label">Date Of Marriage <span class="redStar">*</span></label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="dateOfMarriage" value="" name="dateOfMarriage" data-parsley-required="true">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="occupation" class="col-md-2 col-sm-2 col-form-label">Occupation <span class="redStar">*</span></label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="occupationSP" value="" name="occupation" data-parsley-required="true">
+                                    </div>
+
+                                    <label for="gender" class="col-md-2 col-sm-2 col-form-label">Gender </label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select class="form-control" name="gender" id="genderSP">
+                                            <option>Male</option>
+                                            <option>Female</option>
+                                            <option>Others</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row" style="display:none;">
+                                    <label for="designation" class="col-md-2 col-sm-2 col-form-label">Designation</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="designationSP" value="" name="designation">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row" style="display:none;">
+                                    <label for="organization" class="col-md-2 col-sm-2 col-form-label">Organization </label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="organizationSP" value="" name="organization">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row" style="display:none;">
+                                    <label for="bin" class="col-md-2 col-sm-2 col-form-label">Bin </label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="binSP" value="" name="bin">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="nid" class="col-md-2 col-sm-2 col-form-label">Nid </label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="number" class="form-control" id="nidSP" value="" name="nid">
+                                    </div>
+
+                                    <label for="bloodGroup" class="col-md-2 col-sm-2 col-form-label">Blood Group</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select class="form-control" name="bloodGroup" id="bloodGroupSP">
+                                            <option value="">Select</option>
+                                            <option value="O-">O-</option>
+                                            <option value="O+">O+</option>
+                                            <option value="A-">A-</option>
+                                            <option value="A+">A+</option>
+                                            <option value="B-">B-</option>
+                                            <option value="B+">B+</option>
+                                            <option value="AB-">AB-</option>
+                                            <option value="AB+">AB+</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="contact" class="col-md-2 col-sm-2 col-form-label">Contact <span class="redStar">*</span></label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="number" class="form-control" id="contactSP" value="" name="contact" data-parsley-required="true">
+                                    </div>
+
+                                    <label for="skills" class="col-md-2 col-sm-2 col-form-label">Skill</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select class="form-control multiple-select skills" multiple="multiple" name="skills" id="skillsSP" style="width: 285px;">
+                                            @foreach (var data in Model.spacialSkills)
+                                            {
+                                                <option value="@data.Id">@data.skilName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group row" style="display:none;">
+                                    <label for="higherEducation" class="col-md-2 col-sm-2 col-form-label">Higher Education </label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="higherEducationSP" value="" name="higherEducation">
+                                    </div>
+                                </div>
+
+
+
+                                <hr>
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                <hr />
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <!-- Card Header - Dropdown -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Spouse Information</h6>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered" id="childrenTable spouseTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Spouse Name</th>
+                                            <th>Date Of Birth</th>
+                                            <th>Gender</th>
+                                            <th>Blood Group</th>
+                                            <th>Contact Number</th>
+
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var data in Model.spouses)
+                                        {
+                                            <tr>
+
+                                                <td>@data.spouseName</td>
+                                                <td>@data.dateOfBirth?.ToString("MM/dd/yyyy")</td>
+                                                <td>@data.gender</td>
+                                                <td>@data.bloodGroup</td>
+                                                <td>@data.contact</td>
+
+                                                <td>
+                                                    <a class="btn btn-success" href="#headingspouse" onclick="EditS(@data.Id,'@data.employeeId','@data.spouseName','@data.email','@data.dateOfBirth?.ToString("MM/dd/yyyy")','@data.dateOfMarriage?.ToString("MM/dd/yyyy")','@data.gender','@data.occupation','@data.nid','@data.bloodGroup','@data.contact','@data.homeDistrict','@data.spacialSkills','@data.spouseNameBN')"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" href="#headingspouse" onclick="RemoveS(@data.Id,@data.employeeId)"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingChildren">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseChildren" aria-expanded="false" aria-controls="collapseChildren">
+                        Children Information
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseChildren" class="collapse show" aria-labelledby="headingChildren" data-parent="#accordion">
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+
+                        <hr>
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="Children" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                                <div class="form-group row">
+                                    <label for="childName" class="col-md-2 col-sm-2 col-form-label">Child Name<span class="redStar">*</span></label>
+
+                                    <div class="col-md-4 col-sm-10">
+                                        <input data-parsley-trigger="keyup" type="text" class="form-control" id="childName" value="" name="childName" data-parsley-required="true">
+                                        <input type="hidden" id="CemployeeID" name="employeeID" value="@Model.employeeInfo?.Id">
+                                        <input type="hidden" id="childrenID" name="childrenID" value="0">
+                                    </div>
+
+                                    <label for="childNameBN" class="col-md-2 col-sm-2 col-form-label">Child Name (Bangla)</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="childNameBN" value="" name="childNameBN">
+                                    </div>
+                                </div>
+
+
+
+                                <div class="form-group row" style="display:none;">
+                                    <label for="education" class="col-sm-3 col-form-label">Education</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="Ceducations" value="" name="education">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="dateOfBirth" class="col-md-2 col-sm-2 col-form-label">Date Of Birth <span class="redStar">*</span></label>
+
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="dateOfBirthCH" value="" name="dateOfBirth" data-parsley-required="true">
+                                    </div>
+
+                                    <label for="gender" class="col-md-2 col-sm-2 col-form-label">Gender</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select class="form-control" name="gender" id="Cgender">
+                                            <option>Male</option>
+                                            <option>Female</option>
+                                            <option>Others</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+
+
+                                <div class="form-group row" style="display:none;">
+                                    <label for="designation" class="col-sm-3 col-form-label">Designation</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="Cdesignation" value="" name="designation">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row" style="display:none;">
+                                    <label for="organization" class="col-sm-3 col-form-label">Organization</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="Corganization" value="" name="organization">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="occupation" class="col-md-2 col-sm-2 col-form-label">Occupation</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="Coccupation" value="" name="occupation">
+                                    </div>
+
+                                    <label for="bin" class="col-md-2 col-sm-2 col-form-label">Bin </label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="Cbin" value="" name="bin">
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label for="nid" class="col-md-2 col-sm-2 col-form-label">Nid </label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="Cnid" value="" name="nid">
+                                    </div>
+
+                                    <label for="bloodGroup" class="col-md-2 col-sm-2 col-form-label">Blood Group</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select class="form-control" name="bloodGroup" id="CbloodGroup">
+                                            <option value="O+">O+</option>
+                                            <option value="O-">O-</option>
+                                            <option value="A+">A+</option>
+                                            <option value="A-">A-</option>
+                                            <option value="AB+">AB+</option>
+                                            <option value="AB-">AB-</option>
+                                            <option value="B+">B+</option>
+                                            <option value="B-">B-</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="isDisable" class="col-md-2 col-sm-2 col-form-label">Disable</label>
+                                    <div class="col-md-4 col-sm-10" style="padding-left: 3%;">
+                                        <input type="checkbox" class="form-check-input" id="isDisable" name="isDisable">
+                                        <label class="form-check-label" for="isDisable"></label>
+                                    </div>
+
+                                    <label for="skills" class="col-md-2 col-sm-2 col-form-label">Skill</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <select class="form-control multiple-select skills" multiple="multiple" name="skills" id="Cspecialskills" style="width: 285px;">
+                                            @foreach (var data in Model.spacialSkills)
+                                            {
+                                                <option value="@data.Id">@data.skilName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <hr>
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                <hr />
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <!-- Card Header - Dropdown -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Children Information</h6>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered" id="childrenTable">
+                                    <thead>
+                                        <tr>
+
+                                            <th>Child Name</th>
+                                            <th>Date Of Birth</th>
+                                            <th>Gender</th>
+                                            <th>Occupation</th>
+                                            <th>Blood Group</th>
+                                            <th>skill</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var data in Model.children)
+                                        {
+                                            <tr>
+
+                                                <td>@data.childName</td>
+                                                <td>@data.dateOfBirth?.ToString("MM/dd/yyyy")</td>
+                                                <td>@data.gender</td>
+                                                <td>@data.occupation</td>
+                                                <td>@data.bloodGroup</td>
+                                                <td>@data.spacialSkills</td>
+
+                                                <td>
+                                                    <a class="btn btn-success" href="#headingChildren" onclick="EditC(@data.Id,'@data.childName','@data.employeeId','@data.dateOfBirth?.ToString("dd-MMM-yyyy")','@data.gender','@data.occupation','@data.nid','@data.bloodGroup','@data.spacialSkills')"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" href="#headingChildren" onclick="RemoveC(@data.Id,@data.employeeId)"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingThree">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Residence Address
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseThree" class="collapse show" aria-labelledby="headingThree" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="card">
+                        <hr>
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="Address" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6 class="m-0 font-weight-bold text-primary">Present</h6>
+                                                <hr />
+                                                <div class="form-group row">
+                                                    <label for="presentRoadNo" class="col-sm-3 col-form-label">Road No</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="presentRoadNo" value="@Model.addressPresent?.roadNumber" name="presentRoadNo">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="presentHouseVillage" class="col-sm-3 col-form-label">HouseVillage</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="presentHouseVillage" value="@Model.addressPresent?.houseVillage" name="presentHouseVillage">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="presentBlockSector" class="col-sm-3 col-form-label">BlockSector</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="presentBlockSector" value="@Model.addressPresent?.blockSector" name="presentBlockSector">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="presentPostCode" class="col-sm-3 col-form-label">PostCode</label>
+                                                    <div class="col-sm-9">
+                                                        <input data-parsley-type="number" data-parsley-length="[4, 6]" data-parsley-trigger="keyup" class="form-control" id="presentPostCode" value="@Model.addressPresent?.postCode" name="presentPostCode">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="presentPostOffice" class="col-sm-3 col-form-label">PostOffice</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="presentPostOffice" value="@Model.addressPresent?.postOffice" name="presentPostOffice">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="presentDivision" class="col-sm-3 col-form-label">Division <span style="color:red">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <select type="text" class="form-control" id="presentDivision" name="presentDivision" data-parsley-required="true"></select>
+                                                        <input type="hidden" id="employeeID" name="employeeID" value="@Model.employeeInfo.Id" />
+                                                        <input type="hidden" id="presentAddressID" name="presentAddressID" value="@Model.addressPresent?.Id" />
+                                                        <input type="hidden" id="permanentAddressID" name="permanentAddressID" value="@Model.addressPermanent?.Id" />
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="presentDistrict" class="col-sm-3 col-form-label">District <span style="color:red">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <select type="text" class="form-control" id="presentDistrict" value="" name="presentDistrict" data-parsley-required="true"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="presentUpazila" class="col-sm-3 col-form-label">Upazila <span style="color:red">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <select type="text" class="form-control" id="presentUpazila" value="" name="presentUpazila" data-parsley-required="true"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row" style="display:none;">
+                                                    <label for="presentUnion" class="col-sm-3 col-form-label">Union <span style="color:red">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="presentUnion" value="@Model.addressPresent?.union" name="presentUnion" data-parsley-required="false">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-6">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="row">
+                                                    <h6 class="m-0 font-weight-bold text-primary col-5">permanent</h6>
+                                                    <label for="copyAs" onclick="CopyAddress()" class="col-7 col-form-label"><input type="checkbox" class="form-check-inline" style="margin-right:5px;" id="copyAs" name="copyAs" />sameAddress</label>
+                                                </div>
+                                                <hr />
+                                                <div class="form-group row">
+                                                    <label for="permanentRoadNo" class="col-sm-3 col-form-label">roadNo</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="permanentRoadNo" value="@Model.addressPermanent?.roadNumber" name="permanentRoadNo">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="permanentHouseVillage" class="col-sm-3 col-form-label">HouseVillage</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="permanentHouseVillage" value="@Model.addressPermanent?.houseVillage" name="permanentHouseVillage">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="permanentBlockSector" class="col-sm-3 col-form-label">BlockSector</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="permanentBlockSector" value="@Model.addressPermanent?.blockSector" name="permanentBlockSector">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="permanentPostCode" class="col-sm-3 col-form-label">PostCode</label>
+                                                    <div class="col-sm-9">
+                                                        <input data-parsley-type="number" data-parsley-length="[4, 6]" data-parsley-trigger="keyup" class="form-control" id="permanentPostCode" value="@Model.addressPermanent?.postCode" name="permanentPostCode">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="permanentPostOffice" class="col-sm-3 col-form-label">PostOffice</label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="permanentPostOffice" value="@Model.addressPermanent?.postOffice" name="permanentPostOffice">
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="permanentDivision" class="col-sm-3 col-form-label">Division <span style="color:red">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <select type="text" class="form-control" id="permanentDivision" value="" name="permanentDivision" data-parsley-required="true"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="permanentDistrict" class="col-sm-3 col-form-label">District <span style="color:red">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <select type="text" class="form-control" id="permanentDistrict" value="" name="permanentDistrict" data-parsley-required="true"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row">
+                                                    <label for="permanentUpazila" class="col-sm-3 col-form-label">Upazila <span style="color:red">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <select type="text" class="form-control" id="permanentUpazila" value="" name="permanentUpazila" data-parsley-required="true"></select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-group row" style="display:none;">
+                                                    <label for="permanentUnion" class="col-sm-3 col-form-label">Union <span style="color:red">*</span></label>
+                                                    <div class="col-sm-9">
+                                                        <input type="text" class="form-control" id="permanentUnion" value="@Model.addressPermanent?.union" name="permanentUnion" data-parsley-required="false">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+                            </form>
+                        </div>
+                        <br />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingMembership">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseMember" aria-expanded="false" aria-controls="collapseMember">
+                        Other Membership
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseMember" class="collapse show" aria-labelledby="headingMembership" data-parent="#accordion">
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+
+                        <hr>
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="Membership" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                                <div class="form-group row">
+                                    <label for="nameOrganization" class="col-md-2 col-sm-2 col-form-label">OrganizationName *</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="MnameOrganization" value="" name="nameOrganization" data-parsley-required="true">
+                                        <input type="hidden" name="employeeID" id="employeeID" value="@Model.employeeInfo?.Id" />
+                                        <input type="hidden" name="membershipId" id="MmembershipId" value="0" />
+                                    </div>
+
+                                    <label for="membershipType" class="col-md-2 col-sm-2 col-form-label">Membership Type *</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <input type="text" class="form-control" id="MmembershipType" value="" name="membershipType" data-parsley-required="true" />
+                                        @*<select type="text" class="form-control" id="membershipType" value="" name="membershipType" data-parsley-required="true">
+                                            <option value="">Select One</option>
+                                            @foreach (var data in Model.memberships)
+                                            {
+                                                <option value="@data.Id">@data.membershipName</option>
+                                            }
+                                        </select>*@
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="remarks" class="col-md-2 col-sm-2 col-form-label">Remarks</label>
+                                    <div class="col-md-4 col-sm-10">
+                                        <textarea name="remarks" id="Mremarks" class="form-control" rows="5" cols="5"></textarea>
+                                    </div>
+                                </div>
+                                <hr>
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                <hr />
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <!-- Card Header - Dropdown -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Other Membership List</h6>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered" id="membershipTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Organization Name</th>
+                                            <th>Membership Type </th>
+                                            <th>Remarks</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var data in Model?.employeeMemberships)
+                                        {
+                                            <tr>
+                                                <td>@data?.nameOrganization</td>
+                                                <td>@data?.membershipType</td>
+                                                <td>@data?.remarks</td>
+                                                <td>
+                                                    <a class="btn btn-success" href="#headingMembership" onclick="EditM(@data.Id, '@data?.membershipType' , '@data?.nameOrganization', '@data?.remarks')"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" href="#headingMembership" onclick="RemoveM('@data.Id','@data.employeeId')"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingFour">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseFour" aria-expanded="false" aria-controls="collapseThree">
+                        Training History
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseFour" class="collapse show" aria-labelledby="headingFour" data-parent="#accordion">
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">
+                                <h6 class="identity-box">@Model.employeeNameCode</h6>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="Training" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="trainingTitle" class="col-sm-3 col-form-label">Training Title</label>
+                                            <span class="redStar col-sm-1">*</span>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" id="trainingTitle" value="" name="trainingTitle" data-parsley-required="true" data-parsley-trigger="keyup">
+                                                <input type="hidden" id="employeeID" name="employeeID" value="@Model.employeeInfo.Id">
+                                                <input type="hidden" id="trainingLogID" name="trainingLogID" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="category" class="col-sm-3 col-form-label">Training Type</label>
+                                            <span class="redStar col-sm-1">*</span>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" name="category" id="category" data-parsley-required="true">
+                                                    <option value="">Select</option>
+                                                    @foreach (var data in Model.trainingCategories)
+                                                    {
+                                                        <option value="@data.Id">@data.trainingCategoryName</option>
+                                                    }
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="country" class="col-md-2 col-sm-2 col-form-label">Country</label>
+                                    <div class="col-sm-4">
+                                        <select type="text" class="form-control" id="country" value="" name="country">
+                                            <option value="">Select</option>
+                                            @foreach (var data in Model.countries)
+                                            {
+                                                <option value="@data.Id">@data.countryName</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <label for="institute" class="col-md-2 col-sm-2 col-form-label">Institute  <span class="redStar">*</span> </label>
+                                    <div class="col-sm-4">
+                                        <select class="form-control" name="institute" id="institute" data-parsley-required="true">
+                                            <option value="">Select</option>
+                                            @foreach (var data in Model.trainingInstitutes)
+                                            {
+                                                <option value="@data.Id">@data.trainingInstituteName</option>
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="fromDate" class="col-sm-3 col-form-label">FromDate</label>
+                                            <span class="redStar col-sm-1">*</span>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" id="fromDate" value="" name="fromDate" autocomplete="off" data-parsley-required="true">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="toDate" class="col-sm-3 col-form-label">ToDate </label>
+                                            <span class="redStar col-sm-1">*</span>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" id="toDate" value="" name="toDate" autocomplete="off" data-parsley-required="true">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group row">
+                                            <label for="remarks" class="col-md-2 col-sm-2 col-form-label">Remarks</label>
+                                            <div class="col-md-4 col-sm-10">
+                                                <input type="text" class="form-control" id="Tremarks" value="" name="remarks" autocomplete="off" data-parsley-required="false">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <hr>
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                <hr />
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <!-- Card Header - Dropdown -->
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="m-0 font-weight-bold text-primary">Title</h6>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered table-responsive-lg table-responsive-sm" id="trainingTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Training Type</th>
+                                            <th>Training Title</th>
+                                            <th>Institute</th>
+                                            <th>FromDate</th>
+                                            <th>ToDate</th>
+                                            <th>Remarks</th>
+                                            <th>Action</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var data in Model.traningLogs)
+                                        {
+                                            <tr>
+                                                <td>@data.trainingCategory.trainingCategoryName</td>
+                                                <td>@data.trainingTitle</td>
+                                                <td>@data.trainingInstitute.trainingInstituteName</td>
+                                                <td>@data.fromDate?.ToString("MM/dd/yyyy")</td>
+                                                <td>@data.toDate?.ToString("MM/dd/yyyy")</td>
+                                                <td>@data.remarks</td>
+                                                <td>
+                                                    <a class="btn btn-success" onclick="EditT(@data.Id,@data.trainingCategoryId,@data.trainingInstituteId,'@data.trainingTitle','@data.countryId','@data.fromDate?.ToString("MM/dd/yyyy")','@data.toDate?.ToString("MM/dd/yyyy")','@data.sponsoringAgency','@data.remarks')" href="#headingFour"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" onclick="RemoveT(@data.Id,@data.employeeId)" href="#"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingService">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseService" aria-expanded="false" aria-controls="collapseService">
+                        Service
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseService" class="collapse show" aria-labelledby="headingService" data-parent="#accordion">
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="TransferLog" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="card" style="padding: 2%">
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group row">
+                                                <label for="workStation" class="col-sm-3 col-form-label">Work Station</label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <input type="text" data-parsley-required="true" class="form-control" id="workStation" value="" name="workStation">
+                                                    <input type="hidden" id="employeeID" name="employeeID" value="@Model.employeeInfo?.Id">
+                                                    <input type="hidden" id="ServicetransfarID" name="transfarID" value="0">
+                                                </div>
+                                            </div>
+                                            <div class="form-group row">
+                                                <label for="fromDate" class="col-sm-3 col-form-label">From Date</label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <input type="text" data-parsley-required="true" class="form-control" id="SfromDate" value="" name="fromDate">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group row">
+                                                <label for="department" class="col-sm-3 col-form-label">Grade </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <input type="text" data-parsley-required="true" class="form-control" id="Servicedepartment" value="" name="department">
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group row">
+                                                <label for="toDate" class="col-sm-4 col-form-label">To Date</label>
+                                                <div class="col-sm-8">
+                                                    <input type="text" class="form-control" id="StoDate" value="" name="toDate">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group row">
+                                                <label for="designation" class="col-sm-3 col-form-label">Designation </label>
+                                                <span class="redStar col-sm-1">*</span>
+                                                <div class="col-sm-8">
+                                                    <input type="text" data-parsley-required="true" class="form-control" id="Servicedesignation" value="" name="designation">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <br />
+
+                                <button data-toggle="tooltip" title="Add" type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                <hr />
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered table-responsive-lg table-responsive-sm" id="transferTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Work Station</th>
+                                            <th>From Date</th>
+                                            <th>To Date</th>
+                                            <th>Grade</th>
+                                            <th>Designation</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var data in Model.transferLogs)
+                                        {
+                                            <tr>
+                                                <td>@data.workStation</td>
+                                                <td>@data.from?.ToString("MM/dd/yyyy")</td>
+                                                <td>@data.to?.ToString("MM/dd/yyyy")</td>
+                                                <td>@data.department</td>
+                                                <td>@data.designation</td>
+                                                <td>
+                                                    <a class="btn btn-success" onclick="EditService(@data.Id,'@data.workStation','@data.from?.ToString("MM/dd/yyyy")','@data.to?.ToString("MM/dd/yyyy")','@data.department','@data.designation')" href="#headingService"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" onclick="RemoveService(@data.Id,@data.employeeId)" href="#"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingPass">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapsePass" aria-expanded="false" aria-controls="collapsePass">
+                        Passport
+                    </button>
+                </h5>
+            </div>
+            <div id="collapsePass" class="collapse show" aria-labelledby="headingPass" data-parent="#accordion">
+
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="Passport" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                                <div class="form-group row">
+                                    <label for="passPortNumber" class="col-sm-2 col-form-label">Passport Number <span class="redStar">*</span></label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="passPortNumber" value="" name="passPortNumber" data-parsley-required="true">
+                                        <input type="hidden" name="employeeID" id="employeeID" value="@Model.employeeInfo.Id" />
+                                        <input type="hidden" name="passportId" id="passportId" value="0" />
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group row">
+                                    <label for="place" class="col-sm-2 col-form-label">Place <span class="redStar">*</span></label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="place" value="" name="place" data-parsley-required="true">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group row">
+                                            <label for="dateOfIssue" class="col-sm-4 col-form-label">Date Of Issue <span class="redStar">*</span></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" id="dateOfIssue" value="" name="dateOfIssue" data-parsley-required="true">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group row">
+                                            <label for="dateOfExpair" class="col-sm-4 col-form-label">Date Of Expair <span class="redStar">*</span></label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" id="dateOfExpair" value="" name="dateOfExpair" data-parsley-required="true">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered table-responsive-lg table-responsive-sm" id="passportTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Passport Number</th>
+                                            <th>Place</th>
+                                            <th>Date Of Issue</th>
+                                            <th>Date Of Expair</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @foreach (var data in Model.passportDetails)
+                                        {
+                                            <tr>
+                                                <td>@data.passportNumber</td>
+                                                <td>@data.placeOfIssue</td>
+                                                <td>@data.dateOfIssue?.ToString("MM/dd/yyyy")</td>
+                                                <td>@data.dateOfExpair?.ToString("MM/dd/yyyy")</td>
+                                                <td>
+                                                    <a class="btn btn-success" onclick="EditPass(@data.Id, '@data.passportNumber', '@data.placeOfIssue', '@data.dateOfIssue?.ToString("MM/dd/yyyy")','@data.dateOfExpair?.ToString("MM/dd/yyyy")')" href="#headingPass"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" onclick="RemovePass(@data.Id,@data.employeeId)" href="#"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingAw">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseAw" aria-expanded="false" aria-controls="collapsePass">
+                        Award
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseAw" class="collapse show" aria-labelledby="headingAw" data-parent="#accordion">
+
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="Award" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                                <div class="form-group row">
+                                    <label for="awardName" class="col-sm-2 col-form-label">Award Name <span style="float:right;" class="redStar">*</span></label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="awardName" value="" name="awardName" data-parsley-required="true">
+                                        <input type="hidden" name="employeeID" id="employeeID" value="@Model.employeeInfo.Id" />
+                                        <input type="hidden" name="awardId" id="awardId" value="0" />
+                                    </div>
+                                </div>
+
+
+                                <div class="form-group row">
+                                    <label for="perpose" class="col-sm-2 col-form-label">Perpose <span style="float:right;" class="redStar">*</span></label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="perpose" value="" name="perpose" data-parsley-required="true">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="txtAwardDate" class="col-sm-2 col-form-label">Award Date <span style="float:right;" class="redStar">*</span></label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="txtAwardDate" value="" name="txtAwardDate" autocomplete="off" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <hr />
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                <hr />
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered table-responsive-lg table-responsive-sm" id="awardTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Award Name</th>
+                                            <th>Perpose</th>
+                                            <th>Award Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var data in Model.awards)
+                                        {
+                                            <tr>
+                                                <td>@data.awardName</td>
+                                                <td>@data.purpose</td>
+                                                <td>@data.awardDate?.ToString("MM/dd/yyyy")</td>
+                                                <td>
+                                                    <a class="btn btn-success" href="#headingAw" onclick="EditAw(@data.Id, '@Html.Raw(HttpUtility.JavaScriptStringEncode(data.awardName))','@Html.Raw(HttpUtility.JavaScriptStringEncode(data.purpose))', '@data.awardDate?.ToString("MM/dd/yyyy")')" href="#"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" onclick="RemoveAw(@data.Id,@data.employeeId)" href="#"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingPub">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapsePub" aria-expanded="false" aria-controls="collapsePub">
+                        Publication
+                    </button>
+                </h5>
+            </div>
+            <div id="collapsePub" class="collapse show" aria-labelledby="headingPub" data-parent="#accordion">
+
+
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="Publication" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                                <div class="form-group row">
+                                    <label for="publicationNubmer" class="col-sm-3 col-form-label">Publication Nubmer </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="publicationNubmer" value="" name="publicationNubmer">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="publicationName" class="col-sm-3 col-form-label">Publication Name <span style="float:right;" class="redStar">*</span></label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="publicationName" value="" name="publicationName" data-parsley-required="true">
+                                        <input type="hidden" name="employeeID" id="employeeID" value="@Model.employeeInfo.Id" />
+                                        <input type="hidden" name="publicationId" id="publicationId" value="0" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="publicationPlace" class="col-sm-3 col-form-label">Publication Place <span style="float:right;" class="redStar">*</span></label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="publicationPlace" value="" name="publicationPlace" data-parsley-required="true">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="publicationType" class="col-sm-3 col-form-label">Publication Type <span style="float:right;" class="redStar">*</span></label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="publicationType" value="" name="publicationType" data-parsley-required="true">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="txtPubDate" class="col-sm-3 col-form-label">Publication Date <span style="float:right;" class="redStar">*</span></label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="txtPubDate" value="" name="publicationDate" autocomplete="off" data-parsley-required="true">
+                                    </div>
+                                </div>
+                                <hr>
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                <hr />
+
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered table-responsive-lg table-responsive-sm" id="publicationTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Publication Name</th>
+                                            <th>Publication Type</th>
+                                            <th>Publication Nubmer</th>
+                                            <th>Publication Place</th>
+                                            <th>Publication Date</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                        @foreach (var data in Model.publications)
+                                        {
+                                            <tr>
+                                                <td>@data.publicationName</td>
+                                                <td>@data.publicationType</td>
+                                                <td>@data.publicationNubmer</td>
+                                                <td>@data.publicationPlace</td>
+                                                <td>@data.publicationDate?.ToString("MM/dd/yyyy")</td>
+                                                <td>
+                                                    <a class="btn btn-success" onclick="EditPub(@data.Id, '@data.publicationName', '@data.publicationType', '@data.publicationDate?.ToString("MM/dd/yyyy")', '@data.publicationPlace', '@data.publicationNubmer')" href="#headingPub"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" onclick="RemovePub(@data.Id,@data.employeeId)" href="#"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingLang">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseLang" aria-expanded="false" aria-controls="collapseLang">
+                        Language
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseLang" class="collapse show" aria-labelledby="headingLang" data-parent="#accordion">
+
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="Language" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+                                <div class="form-group row">
+                                    <label for="txtLanguage" class="col-sm-2 col-form-label">Language <span class="redStar">*</span></label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" name="language" id="txtLanguage" data-parsley-required="true">
+                                            <option value="">Select One</option>
+                                            @foreach (var data in Model.languages)
+                                            {
+                                                <option value="@data.Id">@data.languageName</option>
+                                            }
+                                        </select>
+                                        <input type="hidden" name="employeeID" id="employeeID" value="@Model.employeeInfo.Id" />
+                                        <input type="hidden" name="languageId" id="languageId" value="0" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label for="txtProficiency" class="col-sm-2 col-form-label">Proficiency</label>
+                                    <div class="col-sm-10">
+                                        <div id="txtProficiency" class="form-control" style="padding-top:4px;">
+
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="checkbox" id="Reading" value="reading" name="reading">
+                                                <label class="form-check-label" for="Reading">Reading</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="checkbox" id="Writing" value="writing" name="writing">
+                                                <label class="form-check-label" for="Writing">Writing</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input class="form-check-input" type="checkbox" id="Speaking" value="speaking" name="speaking">
+                                                <label class="form-check-label" for="Speaking">Speaking</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                <hr />
+
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered table-responsive-lg table-responsive-sm" id="languageTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Language</th>
+                                            <th>Reading</th>
+                                            <th>Writing</th>
+                                            <th>Speaking</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var data in Model.employeeLanguages)
+                                        {
+                                            <tr>
+                                                <td>@data.language.languageName</td>
+                                                <td> <i class="fa @(data.reading == "reading"?"fa-check-circle":"fa-times")"></i></td>
+                                                <td> <i class="fa @(data.writing == "writing"?"fa-check-circle":"fa-times")"></i></td>
+                                                <td> <i class="fa @(data.speaking == "speaking"?"fa-check-circle":"fa-times")"></i></td>
+                                                <td>
+                                                    <a class="btn btn-success" onclick="EditLang(@data.Id, '@data.languageId', '@data.reading', '@data.writing','@data.speaking')" href="#headingLang"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" onclick="RemoveLang(@data.Id,@data.employeeId)" href="#"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" style="background:#bac1c9;" id="headingDrive">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" style="color:#1f2350;font-weight:900;font-size:large" data-toggle="collapse" data-target="#collapseDrive" aria-expanded="false" aria-controls="collapseDrive">
+                        Driving Licance
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseDrive" class="collapse show" aria-labelledby="headingDrive" data-parent="#accordion">
+
+                <div class="card" style="width: 100%;">
+                    <div class="card-body">
+                        <div class="container">
+                            <form asp-area="Employee" asp-controller="License" asp-action="IndexBigForm" method="post" data-parsley-validate="parsley">
+
+                                <div asp-validation-summary="All" class="text-danger"></div>
+
+                                <div class="form-group row">
+                                    <label for="licenseNumber" class="col-sm-2 col-form-label"><span style="color:red;float:right;">*</span>License Number </label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="licenseNumber" value="" name="licenseNumber" data-parsley-required="true">
+                                        <input type="hidden" name="employeeID" id="employeeID" value="@Model.employeeInfo.Id" />
+                                        <input type="hidden" name="licenseId" id="licenseId" value="0" />
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group row">
+                                            <label for="licenseCategory" class="col-sm-4 col-form-label"><span style="color:red;float:right;">*</span>License Category</label>
+                                            <div class="col-sm-8">
+                                                <select class="form-control" name="licenseCategory" id="licenseCategory" data-parsley-required="true">
+                                                    <option>Select One</option>
+                                                    <option>Light</option>
+                                                    <option>Medium</option>
+                                                    <option>Heavy</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group row">
+                                            <label for="place" class="col-sm-4 col-form-label"><span style="color:red;float:right;">*</span>Place</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" id="Liceplace" value="" name="place" data-parsley-required="true">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="form-group row">
+                                            <label for="dateOfIssue" class="col-sm-4 col-form-label"><span style="color:red;float:right;">*</span>Date Of Issue </label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" id="LicedateOfIssue" value="" name="dateOfIssue" data-parsley-required="true">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group row">
+                                            <label for="dateOfExpair" class="col-sm-4 col-form-label"><span style="color:red;float:right;">*</span>Date Of Expair </label>
+                                            <div class="col-sm-8">
+                                                <input type="text" class="form-control" id="LicedateOfExpair" value="" name="dateOfExpair" data-parsley-required="true">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <br />
+                <hr />
+                <div class="row clearfix">
+                    <div class="col-12">
+                        <div class="card mb-4">
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <table class="table table-striped table-bordered" id="licenseTable">
+                                    <thead>
+                                        <tr>
+                                            <th>License Number</th>
+                                            <th>Place</th>
+                                            <th>License Category</th>
+                                            <th>Date Of Issue</th>
+                                            <th>Date Of Expair</th>
+                                            <th>Action</th>
+                                    </thead>
+
+                                    <tbody>
+                                        @foreach (var data in Model.licenses)
+                                        {
+                                            <tr>
+                                                <td>@data.licenseNumber</td>
+                                                <td>@data.placeOfIssue</td>
+                                                <td>@data.category</td>
+                                                <td>@data.dateOfIssue?.ToString("MM/dd/yyyy")</td>
+                                                <td>@data.dateOfExpair?.ToString("MM/dd/yyyy")</td>
+                                                <td>
+                                                    <a class="btn btn-success" href="#headingDrive" onclick="Editlice(@data.Id, '@data.licenseNumber', '@data.placeOfIssue', '@data.dateOfIssue?.ToString("MM/dd/yyyy")','@data.dateOfExpair?.ToString("MM/dd/yyyy")','@data.category')"><i class="fa fa-edit"></i></a>
+                                                    <a class="btn btn-danger" onclick="RemoveLice(@data.Id,@data.employeeId)" href="#"><i class="fa fa-trash-alt"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="updateEmpPhotoModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                @*<img src="~/images/Aloha New Logo.png" style="height:50px;" />*@
+                <h5 class="modal-title" id="exampleModalLabel">Update Photo</h5>
+                <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-area="Employee" asp-controller="Photograph" asp-action="IndexBigForm" method="post" enctype="multipart/form-data" data-parsley-validate="parsley">
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="form-group row">
+                        <div class="col-md-5">
+                            <img id="user_img_current" style="width:200px;height:200px" src="~/@Model.photograph?.url" alt="" class="img-thumbnail float-left">
+                            <input type="hidden" id="hiddenFile" />
+                        </div>
+                        <div class="col-md-7">
+                            <img id="user_img" style="width:200px;height:200px" src="~/images/user.png" alt="" class="img-thumbnail float-left">
+                            <input type="hidden" name="employeeID" value="@Model.employeeInfo.Id" />
+                            <input type="hidden" name="photographID" value="@Model.photograph?.Id" />
+                            <input type="file" title="Photo Upload" id="imagePath" data-parsley-required="true" name="empPhoto" class="btn btn-default btn-sm pull-right" />
+                            <span style="float:left;" class="redStar">*</span>
+                        </div>
+                    </div>
+                    <hr>
+                    <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*<div class="modal fade" id="AddNewdegreeModal" tabindex="-1" role="dialog" aria-labelledby="AddNewdegreeModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel1">Add New Item </h5>
+                <button id="AddNewdegreeModalClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-area="HRPMSMasterData" asp-controller="Degree" asp-action="Index" method="post" data-parsley-validate="parsley">
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="form-group row">
+                        <input type="hidden" name="degreeId" id="degreeIdd" value="0" />
+
+                        <label for="levelofeducationId" class="col-md-2 col-sm-2 col-form-label">Level of Education <span style="float:right;" class="redStar">*</span></label>
+                        <div class="col-md-4 col-sm-10">
+                            <select class="form-control" name="levelofeducationId" id="levelofeducationId" data-parsley-required="true">
+                                @foreach (var data in Model.levelofeducationNamelist)
+                                {
+                                    <option value="@data.Id">@data.levelofeducationName</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="degreeName" class="col-md-2 col-sm-2 col-form-label">Degree Name <span style="float:right;" class="redStar">*</span></label>
+                        <div class="col-md-4 col-sm-10">
+                            <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" name="degreeName" id="degreeName">
+                        </div>
+                    </div>
+                    <hr />
+                    <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;">Save</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>*@
+
+
+<div class="modal fade" id="AddNewSubjectModal" tabindex="-1" role="dialog" aria-labelledby="AddNewSubjectModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel2">Add New Item </h5>
+                <button id="AddNewSubjectModalClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-area="HRPMSMasterData" asp-controller="Subject" asp-action="Index" method="post" data-parsley-validate="parsley">
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="form-group row">
+
+
+                        <label for="subjectName" class="col-md-2 col-sm-2 col-form-label">Subject Name </label>
+                        <div class="col-md-4 col-sm-10">
+                            <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" name="subjectName" id="subjectName">
+                        </div>
+                    </div>
+                    <hr />
+                    <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;">Save</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="AddNewUniversityModal" tabindex="-1" role="dialog" aria-labelledby="AddNewUniversityModal" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel3">Add New Item </h5>
+                <button id="AddNewUniversityModalClose" type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form asp-area="HRPMSMasterData" asp-controller="Organization" asp-action="Index" method="post" data-parsley-validate="parsley">
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <div class="form-group row">
+                        <input type="hidden" name="organizationId" id="organizationId" value="0" />
+
+                        <label for="organizationType" class="col-sm-3 col-form-label">Organization Type <span style="float:right;" class="redStar">*</span></label>
+                        <div class="col-sm-9">
+                            <select class="form-control" id="organizationType" name="organizationType" data-parsley-required="true">
+                                <option value="">Select Organization Type</option>
+                                <option value="University">University</option>
+                                <option value="Board">Board</option>
+                                <option value="Institute">Institute</option>
+
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="organizationName" class="col-sm-3 col-form-label">Organization Name <span style="float:right;" class="redStar">*</span></label>
+                        <div class="col-sm-9">
+                            <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" name="organizationName" id="organizationName">
+                        </div>
+                    </div>
+                    <hr />
+                    <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;">Save</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="https://unpkg.com/multiple-select@1.3.1/dist/multiple-select.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+        var posts = {};
+      $(document).ready(function () {
+            $("#personal").addClass("active");
+          $('#dateOfBirthSP').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+            $('#dateOfBirth').datepicker({ dateFormat: "dd-M-yy", showAnim: "scale", changeMonth: true, changeYear: true, yearRange: "1900:2100" });
+          $('#dateOfBirthCH').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+          $('#dateOfMembership').datepicker({ dateFormat: "dd-M-yy", showAnim: "scale", changeMonth: true, changeYear: true, yearRange: "1900:2100" });
+            //$('#childdateOfBirth').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+            $('#fromDate').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+            $('#SfromDate').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+            $('#toDate').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+            $('#StoDate').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+          $('#dateOfMarriage').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+          $('#dateOfIssue').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+          $('#LicedateOfIssue').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+          $('#txtAwardDate').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+          $('#txtPubDate').flatpickr({ dateFormat: "m/d/Y", maxDate: "@DateTime.Now.ToString("MM/dd/yyyy")" });
+          $('#dateOfExpair').flatpickr({ dateFormat: "m/d/Y" });
+          $('#LicedateOfExpair').flatpickr({ dateFormat: "m/d/Y" });
+          var _URL = window.URL || window.webkitURL;
+          //$("#photo").addClass("active");
+          $("#imagePathS").change(function () {
+              //readURL3(this);
+              var fileInput =
+                  document.getElementById('imagePathS');
+
+              var file, img;
+              if ((file = this.files[0])) {
+                  img = new Image();
+                  var objectUrl = _URL.createObjectURL(file);
+                  img.onload = function () {
+                      if (this.width == 300 && this.height == 80) {
+                          readURL3(fileInput);
+                          $('#error1').hide();
+                      } else {
+                          $('#error1').show();
+                          fileInput.value = '';
+                          $('#user_img3').attr('src', '/../../images/sign.jpg');
+                          return false;
+                      }
+                  };
+                  img.src = objectUrl;
+              }
+          });
+
+
+            //address
+            Common.Ajax('GET', '/global/api/divisions/1', [], 'json', ajaxDivision, false);
+            Common.Ajax('GET', '/global/api/divisions/1', [], 'json', ajaxPermanentDivision, false);
+
+            $("#presentDivision").change(function () {
+                var id = $(this).val();
+                Common.Ajax('GET', '/global/api/districts/' + id, [], 'json', ajaxDistrict, false);
+            });
+
+            $("#permanentDivision").change(function () {
+                var id = $(this).val();
+                Common.Ajax('GET', '/global/api/districts/' + id, [], 'json', ajaxPermanentDistrict, false);
+            });
+
+            $("#presentDistrict").change(function () {
+                var id = $(this).val();
+                Common.Ajax('GET', '/global/api/thanas/' + id, [], 'json', ajaxThana, false);
+            });
+
+            $("#permanentDistrict").change(function () {
+                var id = $(this).val();
+                Common.Ajax('GET', '/global/api/thanas/' + id, [], 'json', ajaxPermanentThana, false);
+            });
+
+            //education
+          Common.Ajax('GET', '/global/api/levelOfEducations', [], 'json', ajaxLevelOfEducation, false);
+          Common.Ajax('GET', '/global/api/organizations', [], 'json', ajaxOrganization, false);
+          Common.Ajax('GET', '/global/api/results', [], 'json', ajaxResult, false);
+            $("#gradeDiv").show();
+            $("#divisionDiv").hide();
+
+
+
+          $("#levelOfEducation").change(function () {
+              var id = $("#levelOfEducation").val();
+              Common.Ajax('GET', '/global/api/degrees/' + id, [], 'json', ajaxDegrees);
+          });
+
+          $("#degreeId").change(function () {
+              var id = $("#degreeId").val();
+              Common.Ajax('GET', '/global/api/relDegreeSubjects/' + id, [], 'json', ajaxRelDegreeSubjects);
+          });
+
+
+
+
+
+
+            $("#resultId").change(function () {
+                var text = $('#resultId option:selected').text();
+                if (text === "Division") {
+                    $("#gradeDiv").hide();
+                    $("#grade").attr('name', 'aaaa');
+                    $("#division").attr('name', 'grade');
+                    $("#division").attr('data-parsley-required', true);
+                    $("#grade").attr('data-parsley-required', false);
+                    $("#divisionDiv").show();
+                } else {
+                    $("#gradeDiv").show();
+                    $("#divisionDiv").hide();
+                    $("#division").attr('name', 'aaaa');
+                    $("#grade").attr('name', 'grade');
+                    $("#division").attr('data-parsley-required', false);
+                    $("#grade").attr('data-parsley-required', true);
+                }
+            });
+
+          
+
+
+            $("#freedomFighter").change(function () {
+                if ($("#freedomFighter").val() == 'Yes') {
+                    $("#freedomFighterNo").attr('readonly', false);
+                }
+                else {
+                    $("#freedomFighterNo").attr('readonly', true);
+                    $("#freedomFighterNo").val('');
+                }
+            });
+            @*$("#membercategory").change(function () {
+                $("#employeeType").empty();
+                if ($("#membercategory").val() == 1) {
+                    var option1 = '@foreach (var data in Model.memberTypes.Where(x => x.memberTypeBn == "1")){<option value="@data.Id">@data.memberType</option>}';
+                    $("#employeeType").empty();
+                    $("#employeeType").append(option1);
+                }
+                else if ($("#membercategory").val() == 2) {
+
+                    var option2 = '@foreach (var data in Model.memberTypes.Where(x => x.memberTypeBn == "2")){<option value="@data.Id">@data.memberType</option>}';
+                    $("#employeeType").empty();
+                    $("#employeeType").append(option2);
+                } else {
+                    $("#employeeType").empty();
+                }
+            });*@
+
+            $("#currentDivision").change(function () { Common.Ajax('GET', '/global/api/allAvailablePosts/' + $(this).val(), [], 'json', ajaxPosts); });
+
+            $("#designation").change(function () { $("#post").val(posts['"' + $(this).val() + '"']); });
+            $("#photo").addClass("active");
+            $("#maritalStatus").change(function () {
+
+                if ($("#maritalStatus").val() == "Married") {
+                    $("#isSpouseCareer").prop('readonly', false);
+                    $("#spousePhoto").prop('readonly', false);
+                    $("#spouseName").prop('readonly', false);
+                    $("#spouseName").attr('data-parsley-required', true);
+                } else {
+                    $("#isSpouseCareer").prop('readonly', true);
+                    $("#spousePhoto").prop('readonly', true);
+                    $("#spouseName").prop('readonly', true);
+                    $("#spouseName").removeAttr('data-parsley-required', false);
+
+                }
+
+            });
+
+            $("#imagePath").change(function () {
+                readURL(this);
+            });
+            $("#childrenPhoto").change(function () {
+                readURL2(this);
+            });
+            $("#spousePhoto").change(function () {
+                readURL1(this);
+            });
+
+
+
+            $('.skills').multipleSelect();
+            $(".tab1").show();
+            $(".tab2").hide();
+            $(".tab3").hide();
+            //$("#dateOfBirth").change(function () {
+            //    var dob = $("#dateOfBirth").val();
+            //    //$("#dateOfLPR").val(dob);
+            //});
+
+            //ddl select
+            $("#nationality").val('@Model.employeeInfo?.nationality');
+            $("#homeDistrict").val('@Model.employeeInfo?.homeDistrict');
+            $("#disability").val('@Model.employeeInfo?.disability');
+            $("#gender").val('@Model.employeeInfo?.gender');
+            $("#maritalStatus").val('@Model.employeeInfo?.maritalStatus');
+            $("#religion").val('@Model.employeeInfo?.religionId');
+
+            $("#bloodGroup").val('@Html.Raw(Model.employeeInfo?.bloodGroup)');
+            $("#natureOfRequitment").val('@Model.employeeInfo?.natureOfRequitment');
+
+
+            //Present
+
+           var divId = '@Model.addressPresent?.divisionId';
+          if (divId > 0) {
+                    $('#presentDivision').val(@Model.addressPresent?.divisionId);
+                    var divisionId = '@Model.addressPresent?.divisionId';
+                    Common.Ajax('GET', '/global/api/districts/' + divisionId, [], 'json', ajaxDistrict, false);
+
+                    $('#presentDistrict').val(@Model.addressPresent?.districtId);
+                    var districtId = '@Model.addressPresent?.districtId';
+                    Common.Ajax('GET', '/global/api/thanas/' + districtId, [], 'json', ajaxThana, false);
+
+                    $('#presentUpazila').val(@Model.addressPresent?.thanaId);
+                }
+
+                //Permanent
+          var divIdP = '@Model.addressPermanent?.divisionId';
+                if (divIdP > 0) {
+                    $('#permanentDivision').val(@Model.addressPermanent?.divisionId);
+                    var divisionId = '@Model.addressPermanent?.divisionId';
+                    Common.Ajax('GET', '/global/api/districts/' + divisionId, [], 'json', ajaxPermanentDistrict, false);
+
+                    $('#permanentDistrict').val(@Model.addressPermanent?.districtId);
+                    var districtId = '@Model.addressPermanent?.districtId';
+                    Common.Ajax('GET', '/global/api/thanas/' + districtId, [], 'json', ajaxPermanentThana, false);
+
+                    $('#permanentUpazila').val(@Model.addressPermanent?.thanaId);
+                }
+
+        });
+
+
+                //swal part
+                $('#PersonalInfobtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#PersonalInfo').click();
+                    });
+                });
+                $('#SpouseFormBtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#SpouseForm').click();
+                    });
+                });
+                    $('#signatureFormBtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#signatureForm').click();
+                    });
+                });
+                $('#ChildrenFormBtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#ChildrenForm').click();
+                    });
+                });
+                $('#EducationFormBtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#EducationForm').click();
+                    });
+                });
+                $('#OrganisationFormBtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#OrganisationForm').click();
+                    });
+                 });
+                 $('#MembershipFormBtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#MembershipForm').click();
+                    });
+                });
+                $('#AddressFormBtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#AddressForm').click();
+                    });
+                });
+                $('#CreateFormContactBtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#CreateFormContact').click();
+                    });
+                });
+                $('#CreateFormMisBtn').click(function () {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to submit this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, submit it!'
+                    }).then(function () {
+                        $('#CreateFormMis').click();
+                    });
+                });
+
+
+        function getEmployee() {
+            var id1 = $("#employeeCode1").val();
+            var id = $("#employeeCode").val();
+            if (id1) {
+                Common.Ajax('GET', '/global/api/GetEmployeeInfoByCode1/' + id1, [], 'json', ajaxEmployee);
+            } else {
+                Common.Ajax('GET', '/global/api/GetEmployeeInfoByCode1/' + id, [], 'json', ajaxEmployee);
+            }
+        }
+
+        function ajaxEmployee(response) {
+            console.log(response);
+
+            //$("#activityStatus").val(response.activityStatus);
+            $("#dateOfMembership1").val(response.joiningDateGovtService);
+            $("#emailAddressPersonal1").val(response.emailAddressPersonal);
+            $("#nameEnglish1").val(response.nameEnglish);
+            $("#employeeType1").val(response.memberTypeId);
+            $("#employeeID1").val(response.Id);
+            $("#mobileNumberPersonal1").val(response.mobileNumberPersonal);
+                //console.log(response);
+            $("#dateOfMembership").val(response.joiningDateGovtService);
+            $("#emailAddressPersonal").val(response.emailAddressPersonal);
+            $("#nameEnglish").val(response.nameEnglish);
+            $("#employeeType").val(response.memberTypeId);
+            $("#employeeID").val(response.Id);
+            $("#mobileNumberPersonal").val(response.mobileNumberPersonal);
+
+        }
+        function EditPass(Id, passportNumber, placeOfIssue, dateOfIssue, dateOfExpair) {
+            $("#passportId").val(Id);
+            $("#passPortNumber").val(passportNumber);
+            $("#place").val(placeOfIssue);
+            $("#dateOfIssue").val(dateOfIssue);
+            $("#dateOfExpair").val(dateOfExpair);
+        }
+        function EditAw(Id, awardName, purpose, awardDate) {
+            $("#awardId").val(Id);
+            $("#awardName").val(awardName);
+            $("#perpose").val(purpose);
+            $("#txtAwardDate").val(awardDate);
+        }
+        function EditPub(Id, publicationName, publicationType, publicationDate, publicationPlace, publicationNubmer) {
+            $("#publicationNubmer").val(publicationNubmer);
+            $("#publicationId").val(Id);
+            $("#publicationName").val(publicationName);
+            $("#publicationType").val(publicationType);
+            $("#publicationPlace").val(publicationPlace);
+            $("#txtPubDate").val(publicationDate);
+        }
+        function EditLang(Id, languageId, reading, writing, speaking) {
+            $("#languageId").val(Id);
+            $("#txtLanguage").val(languageId);
+            if (reading == "reading") $('#Reading').prop('checked', true);
+            else $('#Reading').prop('checked', false);
+
+            if (writing == "writing") $('#Writing').prop('checked', true);
+            else $('#Writing').prop('checked', false);
+
+            if (speaking == "speaking") $('#Speaking').prop('checked', true);
+            else $('#Speaking').prop('checked', false);
+
+            // $("#txtProficiency").val(proficiency);
+        }
+        function Editlice(Id, licenseNumber, placeOfIssue, dateOfIssue, dateOfExpair, category) {
+            $("#licenseId").val(Id);
+            $("#licenseNumber").val(licenseNumber);
+            $("#Liceplace").val(placeOfIssue);
+            $("#LicedateOfIssue").val(dateOfIssue);
+            $("#LicedateOfExpair").val(dateOfExpair);
+            $("#licenseCategory").val(category);
+        }
+        function EditT(Id, trainingCategoryId, trainingInstituteId, trainingTitle, countryId, fromDate, toDate, sponsoringAgency, remarks) {
+            $('#trainingLogID').val(Id);
+            $('#trainingTitle').val(trainingTitle);
+            $('#category').val(trainingCategoryId);
+            $('#country').val(countryId);
+            $('#institute').val(trainingInstituteId);
+            $('#sponsoringAgency').val(sponsoringAgency);
+            $('#fromDate').val(fromDate);
+            $('#toDate').val(toDate);
+            $('#Tremarks').val(remarks);
+        }
+
+        function RemoveT(Id, employeeId) {
+            chk = confirm('Do you want to delete this?');
+            if (chk) {
+                //return true;
+                location.replace("/Employee/Training/DeleteBigForm/" + Id + "?empId=" + employeeId);
+            } else {
+                return false;
+            }
+        }
+
+
+        function EditService(Id, workStation, from, to, department, designation) {
+            $("#ServicetransfarID").val(Id);
+            $("#workStation").val(workStation);
+            $("#SfromDate").val(from);
+            $("#StoDate").val(to);
+            $("#Servicedepartment").val(department);
+            $("#Servicedesignation").val(designation);
+        }
+      
+        function RemoveService(Id, employeeId) {
+            swal({
+                title: 'Are you sure?', text: 'Do you want to Delete this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, Delete it!'
+            }).then(function () {
+                location.replace("/Employee/TransferLog/DeleteBigForm/" + Id + "?empId=" + employeeId);
+            });
+        }
+        function RemovePass(Id, employeeId) {
+            swal({
+                title: 'Are you sure?', text: 'Do you want to Delete this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, Delete it!'
+            }).then(function () {
+                location.replace("/Employee/Passport/DeleteBigForm/" + Id + "?empId=" + employeeId);
+            });
+        }
+
+
+
+
+
+
+
+        function EditS(Id, employeeId, spouseName, email, dateOfBirth, dateOfMarriage, gender, occupation, nid, bloodGroup, contact, homeDistrict, skills,spouseNamBn) {
+                    $('#employeeID').val(employeeId);
+                    $('#spouseID').val(Id);
+                    $('#spouseName').val(spouseName);
+                    $('#emailAddressSP').val(email);
+                    $('#dateOfBirthSP').val(dateOfBirth);
+                    $('#dateOfMarriage').val(dateOfMarriage);
+                    $('#genderSP').val(gender);
+                    $('#occupationSP').val(occupation);
+                    $('#nidSP').val(nid);
+                    $('#bloodGroupSP').val(bloodGroup);
+                    $('#contactSP').val(contact);
+                    $('#homeDistrictSP').val(homeDistrict);
+                    $('#skillsSP').val(skills);
+                    $('#spouseNameBN').val(spouseNamBn);
+             
+                }
+
+        function RemoveS(Id, employeeId) {
+            chk = confirm('Do you want to delete this?');
+            if (chk) {
+                //return true;
+                location.replace("/Employee/Spouse/DeleteBigForm/" + Id + "?empId=" + employeeId);
+            } else {
+                return false;
+            }
+        }
+
+
+
+
+         function EditM(Id, membershipType, nameOrganization, remarks) {
+             $("#MmembershipId").val(Id);
+             $("#MmembershipType").val(membershipType);
+             $("#MnameOrganization").val(nameOrganization);
+             $("#Mremarks").val(remarks);
+         }
+         function RemoveM(Id, employeeId) {
+             swal({
+                 title: 'Are you sure?', text: 'Do you want to Delete this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, Delete it!'
+             }).then(function () {
+                 location.replace("/Employee/Membership/DeleteBigForm/" + Id + "?empId=" + employeeId);
+             });
+        }
+        function RemoveAw(Id, employeeId) {
+             swal({
+                 title: 'Are you sure?', text: 'Do you want to Delete this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, Delete it!'
+             }).then(function () {
+                 location.replace("/Employee/Award/DeleteBigForm/" + Id + "?empId=" + employeeId);
+             });
+        }
+        function RemovePub(Id, employeeId) {
+             swal({
+                 title: 'Are you sure?', text: 'Do you want to Delete this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, Delete it!'
+             }).then(function () {
+                 location.replace("/Employee/Publication/DeleteBigForm/" + Id + "?empId=" + employeeId);
+             });
+         }
+        function RemoveLang(Id, employeeId) {
+             swal({
+                 title: 'Are you sure?', text: 'Do you want to Delete this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, Delete it!'
+             }).then(function () {
+                 location.replace("/Employee/Language/DeleteBigForm/" + Id + "?empId=" + employeeId);
+             });
+         }
+        function RemoveLice(Id, employeeId) {
+             swal({
+                 title: 'Are you sure?', text: 'Do you want to Delete this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, Delete it!'
+             }).then(function () {
+                 location.replace("/Employee/License/DeleteBigForm/" + Id + "?empId=" + employeeId);
+             });
+         }
+
+
+
+                function EditC(Id, childName, employeeId, dateOfBirth, gender, occupation, nid, bloodGroup,specialskills) {
+                    $('#CemployeeID').val(employeeId);
+                    $('#childrenID').val(Id);
+                    $('#childName').val(childName);
+                    $('#dateOfBirthCH').val(dateOfBirth);
+                    $('#Cgender').val(gender).trigger(change)
+                    $('#Cgender').text(gender).trigger(change)
+                    $('#Coccupation').val(occupation);
+                    $('#Cnid').val(nid);
+                    $('#CbloodGroup').val(bloodGroup).trigger(change)
+                    $('#CbloodGroup').text(bloodGroup).trigger(change)
+                    $('#Cspecialskills').val(specialskills);
+
+                }
+
+        function RemoveC(Id, employeeId) {
+            chk = confirm('Do you want to delete this?');
+            if (chk) {
+                //return true;
+                location.replace("/Employee/Children/DeleteBigForm/" + Id + "?empId=" + employeeId);
+            } else {
+                return false;
+            }
+        }
+                function EditE(Id, levelofeducationId, degreeId, reldegreesubjectId, organizationId, institution, resultId, grade, passingYear) {
+                    $('#educationId').val(Id);
+                    $("#levelOfEducation").val(levelofeducationId);
+
+                    Common.Ajax('GET', '/global/api/degrees/' + levelofeducationId, [], 'json', ajaxDegrees, false);
+                    $('#degreeId').val(degreeId);
+
+                    Common.Ajax('GET', '/global/api/relDegreeSubjects/' + degreeId, [], 'json', ajaxRelDegreeSubjects, false);
+                    $('#reldegreesubjectId').val(reldegreesubjectId);
+
+                    $('#organizationId').val(organizationId);
+                    $('#institution').val(institution);
+                    $('#resultId').val(resultId);
+                    $('#grade').val(grade);
+                    $('#passingYear').val(passingYear);
+                }
+
+                function RemoveE(Id, employeeId) {
+                    swal({
+                        title: 'Are you sure?', text: 'Do you want to Delete this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, Delete it!'
+                    }).then(function () {
+                        location.replace("/MemberInfo/EducationalQualification/Delete/" + Id + "?empId=" + employeeId);
+                    });
+
+                }
+        // function EditO(Id, employeeID, workStation, from, to, department, designation, website) {
+        //            $("#transfarID").val(Id);
+        //     $("#OemployeeID").val(employeeID);
+        //            $("#workStation").val(workStation);
+        //            $("#OfromDate").val(from);
+        //            $("#OtoDate").val(to);
+        //            $("#Odepartment").val(department);
+        //            $("#Odesignation").val(designation);
+        //            $("#Owebsite").val(website);
+        //        }
+        //        function RemoveO(Id, employeeId) {
+        //            swal({
+        //                title: 'Are you sure?', text: 'Do you want to Delete this record!', type: 'warning', showCancelButton: true, confirmButtonColor: '#3085d6', cancelButtonColor: '#d33', confirmButtonText: 'Yes, Delete it!'
+        //            }).then(function () {
+        //                location.replace("/MemberInfo/TransferLog/Delete/" + Id + "?empId=" + employeeId);
+        //            });
+        //        }
+
+        //function AddNewdegreeModal() {
+        //    $('#AddNewdegreeModal').modal('show');
+        //}
+        //function AddNewSubjectModal() {
+        //    $('#AddNewSubjectModal').modal('show');
+        //}
+        //function AddNewUniversityModal() {
+        //    $('#AddNewUniversityModal').modal('show');
+        //}
+        function ajaxLevelOfEducation(response) {
+            var options = '<option value="">Select </option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.levelofeducationName + '</option>';
+            });
+            $('#levelOfEducation').empty();
+            $('#levelOfEducation').append(options);
+        }
+
+        function ajaxOrganization(response) {
+            console.log(response);
+            var options = '<option value="">Select </option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.organizationName + '</option>';
+            });
+            $('#organizationId').empty();
+            $('#organizationId').append(options);
+        }
+
+        function ajaxResult(response) {
+            console.log(response);
+            var options = '<option value="">Select </option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.resultName + '</option>';
+            });
+            $('#resultId').empty();
+            $('#resultId').append(options);
+        }
+
+
+        function ajaxDegrees(response) {
+            var options = '<option value="">Select </option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.degreeName + '</option>';
+            });
+            $('#degreeId').empty();
+            $('#degreeId').append(options);
+        }
+
+        function ajaxRelDegreeSubjects(response) {
+            var options = '<option value="">Select </option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.subject.subjectName + '</option>';
+            });
+            $('#reldegreesubjectId').empty();
+            $('#reldegreesubjectId').append(options);
+        }
+        //function readURL(input) {
+        //    if (input.files && input.files[0]) {
+        //        var filerdr = new FileReader();
+        //        filerdr.onload = function (e) {
+        //            $('#user_img').attr('src', e.target.result);
+        //        }
+        //        filerdr.readAsDataURL(input.files[0]);
+        //    }
+        //}
+        //function readURL1(input) {
+        //    if (input.files && input.files[0]) {
+        //        var filerdr = new FileReader();
+        //        filerdr.onload = function (e) {
+        //            $('#spouse_img').attr('src', e.target.result);
+        //        }
+        //        filerdr.readAsDataURL(input.files[0]);
+        //    }
+        //}
+        //function readURL2(input) {
+        //    if (input.files && input.files[0]) {
+        //        var filerdr = new FileReader();
+        //        filerdr.onload = function (e) {
+        //            $('#user_img2').attr('src', e.target.result);
+        //        }
+        //        filerdr.readAsDataURL(input.files[0]);
+        //    }
+        // }
+
+        // function readURL3(input) {
+        //     if (input.files && input.files[0]) {
+        //         var filerdr = new FileReader();
+        //         filerdr.onload = function (e) {
+        //             $('#user_img3').attr('src', e.target.result);
+        //         }
+        //         filerdr.readAsDataURL(input.files[0]);
+        //     }
+        // }
+
+        //function ajaxPosts(response) {
+        //    posts = {}
+        //    var options = '<option value="">Select</option>';
+        //    $.each(response, function (i, item) {
+        //        posts['"' + item.designationName + '"'] = item.postId;
+        //        options += '<option value="' + item.designationName + '">' + item.designationName + '</option>';
+        //    });
+        //    $('#designation').empty();
+        //    $('#designation').append(options);
+        //}
+        function CopyAddress() {
+            if ($('#copyAs').is(":checked")) {
+                $('#permanentRoadNo').val($('#presentRoadNo').val());
+                $('#permanentHouseVillage').val($('#presentHouseVillage').val());
+                $('#permanentBlockSector').val($('#presentBlockSector').val());
+                $('#permanentPostCode').val($('#presentPostCode').val());
+                $('#permanentPostOffice').val($('#presentPostOffice').val());
+                $('#permanentDivision').val($('#presentDivision').val());
+
+                var divId = $('#presentDivision').val();
+                Common.Ajax('GET', '/global/api/districts/' + divId, [], 'json', ajaxPermanentDistrict, false);
+                $('#permanentDistrict').val($('#presentDistrict').val());
+
+                var disId = $('#presentDistrict').val();
+                Common.Ajax('GET', '/global/api/thanas/' + disId, [], 'json', ajaxPermanentThana, false);
+                $('#permanentUpazila').val($('#presentUpazila').val());
+
+                $('#permanentUnion').val($('#presentUnion').val());
+            }
+
+        }
+
+        function ajaxDivision(response) {
+            var options = '<option value="">Select</option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.divisionName + '</option>';
+            });
+            $('#presentDivision').empty();
+            $('#presentDivision').append(options);
+        }
+
+        function ajaxPermanentDivision(response) {
+            var options = '<option value="">Select</option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.divisionName + '</option>';
+            });
+            $('#permanentDivision').empty();
+            $('#permanentDivision').append(options);
+        }
+
+        function ajaxDistrict(response) {
+            var options = '<option value="">Select</option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.districtName + '</option>';
+            });
+            $('#presentDistrict').empty();
+            $('#presentDistrict').append(options);
+        }
+
+        function ajaxPermanentDistrict(response) {
+            var options = '<option value="">Select</option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.districtName + '</option>';
+            });
+            $('#permanentDistrict').empty();
+            $('#permanentDistrict').append(options);
+        }
+
+        function ajaxThana(response) {
+            var options = '<option value="">Select</option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.thanaName + '</option>';
+            });
+            $('#presentUpazila').empty();
+            $('#presentUpazila').append(options);
+        }
+
+        function ajaxPermanentThana(response) {
+            var options = '<option value="">Select</option>';
+            $.each(response, function (i, item) {
+                options += '<option value="' + item.id + '">' + item.thanaName + '</option>';
+            });
+            $('#permanentUpazila').empty();
+            $('#permanentUpazila').append(options);
+        }
+    </script>
+}

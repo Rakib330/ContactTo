@@ -1,0 +1,121 @@
+﻿@model RelationViewModel
+@{
+    ViewData["TitleMD"] = Model.fLang.title;
+    Layout = "~/Areas/MasterData/Views/Shared/_MasterDataForm.cshtml";
+}
+
+@section StyleMD{
+    <style>
+        .redStar {
+            color: red;
+        }
+    </style>
+}
+
+<div class="card" style="width: 100%;">
+    <div class="card-body">
+        <h5 class="card-title" style="color: black">@Model.fLang.title</h5>
+        <hr>
+        <div class="container">
+            <form asp-area="MasterData" asp-controller="EmployeeRelation" asp-action="Index" method="post" data-parsley-validate="parsley">
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="form-group row">
+                    <input type="hidden" name="relationId" id="relationId" value="0" />
+
+                    <label for="relationName" class="col-sm-3 col-form-label">@Model.fLang.relationName <span style="float:right;" class="redStar">*</span></label>
+                    <div class="col-sm-9">
+                        <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" name="relationName" id="relationName">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="relationNameBn" class="col-sm-3 col-form-label">@Model.fLang.relationNameBn</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="relationNameBn" id="relationNameBn">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="relationShortName" class="col-sm-3 col-form-label">@Model.fLang.shortName</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="relationShortName" id="relationShortName">
+                    </div>
+                </div>
+                <hr />
+                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+                <button type="button" onclick="Refresh()" class="btn btn-danger btn-lg" style="float:right; margin-top:5px;margin-right:5px;"><i class="fas fa-sync"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<br />
+<hr />
+<div class="row clearfix">
+    <div class="col-12">
+        <div class="card mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">@Model.fLang.title</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <table class="table table-striped table-bordered table-responsive-lg table-responsive-sm" id="relationTable">
+                    <thead>
+                        <tr>
+                            <th>@Model.fLang.relationName</th>
+                            <th>@Model.fLang.relationNameBn</th>
+                            <th>@Model.fLang.shortName</th>
+                            <th>@Model.fLang.action</th>
+                    </thead>
+                    <tbody>
+                        @foreach (var data in Model.relations)
+                        {
+                            <tr>
+                                <td>@data.relationName</td>
+                                <td>@data.relationNameBn</td>
+                                <td>@data.relationShortName</td>
+                                <td>
+                                    <a class="btn btn-info" onclick="Edit(@data.Id, '@data.relationName', '@data.relationNameBn', '@data.relationShortName')" href="#" title='Edit'><i class="fa fa-edit"></i></a>
+                                    <button title="Remove" class="btn btn-danger" onclick="Remove(@data.Id)"><i class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section ScriptsMD{
+    <script>
+        function Remove(Id) {
+            chk = confirm('Do you want to delete this?');
+            if (chk) {
+                location.replace("/MasterData/EmployeeRelation/Delete/" + Id);
+            } else {
+                return false;
+            }
+        }
+
+        $(document).ready(function () {
+            $("#relation").addClass("active");
+            $('#relationTable').DataTable();
+        });
+
+        function Refresh() {
+            location.reload();
+        }
+
+        function Edit(Id, relationName, relationNameBn, relationShortName) {
+            $("#relationId").val(Id);
+            $("#relationName").val(relationName);
+            $("#relationNameBn").val(relationNameBn);
+            $("#relationShortName").val(relationShortName);
+        }
+    </script>
+}
+
+

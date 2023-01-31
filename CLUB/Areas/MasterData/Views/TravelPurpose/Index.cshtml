@@ -1,0 +1,123 @@
+﻿@model TravelPurposeViewModel
+
+@{
+    ViewData["TitleMD"] = Model.fLang.title;
+    Layout = "~/Areas/MasterData/Views/Shared/_MasterDataForm.cshtml";
+}
+
+@section StyleMD{
+    <style>
+        .redStar {
+            color: red;
+        }
+    </style>
+}
+
+
+<div class="card" style="width: 100%;">
+    <div class="card-body">
+        <h5 class="card-title" style="color: black">@Model.fLang.title</h5>
+        <hr>
+        <div class="container">
+            <form asp-area="MasterData" asp-controller="TravelPurpose" asp-action="Index" method="post" data-parsley-validate="parsley">
+
+                <div asp-validation-summary="All" class="text-danger"></div>
+
+                <div class="form-group row">
+                    <input type="hidden" name="travelPurposeId" id="travelPurposeId" value="0" />
+                    <label for="purposeName" class="col-sm-3 col-form-label">@Model.fLang.travelPurposeName <span style="float:right;" class="redStar">*</span></label>
+                    <div class="col-sm-9">
+                        <input type="text" data-parsley-required="true" data-parsley-trigger="keyup" class="form-control" name="purposeName" id="purposeName">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="purposeNameBn" class="col-sm-3 col-form-label">@Model.fLang.travelPurposeNameBn</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="purposeNameBn" id="purposeNameBn">
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="purposeShortName" class="col-sm-3 col-form-label">@Model.fLang.shortName</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="purposeShortName" id="purposeShortName">
+                    </div>
+                </div>
+                <hr />
+                <button type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+                <button type="button" onclick="Refresh()" class="btn btn-danger btn-lg" style="float:right; margin-top:5px;margin-right:5px;"><i class="fas fa-sync"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<br />
+<hr />
+<div class="row clearfix">
+    <div class="col-12">
+        <div class="card mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">@Model.fLang.title</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <table class="table table-striped table-bordered table-responsive-lg table-responsive-sm" id="departmentTable">
+                    <thead>
+                        <tr>
+                            <th>@Model.fLang.travelPurposeName</th>
+                            <th>@Model.fLang.travelPurposeNameBn</th>
+                            <th>@Model.fLang.shortName</th>
+                            <th>@Model.fLang.action</th>
+                    </thead>
+                    <tbody>
+                        @foreach (var data in Model.travelPurposes)
+                        {
+                            <tr>
+                                <td>@data.purposeName</td>
+                                <td>@data.purposeNameBn</td>
+                                <td>@data.purposeShortName</td>
+                                <td>
+                                    <a class="btn btn-info" onclick="Edit(@data.Id, '@data.purposeName', '@data.purposeNameBn', '@data.purposeShortName')" href="#"><i class="fa fa-edit"></i></a>
+                                    <button title="Remove" class="btn btn-danger" onclick="Remove(@data.Id)"><i class="fa fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section ScriptsMD{
+    <script>
+        function Remove(Id) {
+            chk = confirm('Do you want to delete this?');
+            if (chk) {
+                location.replace("/MasterData/TravelPurpose/Delete/" + Id);
+            } else {
+                return false;
+            }
+        }
+
+        $(document).ready(function () {
+            $("#travelPurpose").addClass("active");
+            $('#departmentTable').DataTable();
+        });
+
+        function Refresh() {
+            location.reload();
+        }
+
+        function Edit(Id, purposeName, purposeNameBn, purposeShortName) {
+            $("#travelPurposeId").val(Id);
+            $("#purposeName").val(purposeName);
+            $("#purposeNameBn").val(purposeNameBn);
+            $("#purposeShortName").val(purposeShortName);
+        }
+    </script>
+}
+

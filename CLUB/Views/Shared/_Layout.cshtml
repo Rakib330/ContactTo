@@ -1,0 +1,1412 @@
+﻿@using CLUB.Services.Auth.Interfaces
+@using Microsoft.AspNetCore.Identity
+@using System
+@inject IUserInfos userInfo
+@inject UserManager<ApplicationUser> _userManager
+@inject ILoggedinUser loggedinUser
+@{
+    var dayname = DateTime.Now.DayOfWeek.ToString();
+
+    var userInfos = await userInfo.GetUserDetailsByUserName(@User.Identity.Name);
+    var empInfo = await userInfo.GetEmployeeByUserName(@User.Identity.Name);
+    var rolenature = await userInfo.GetRoleNatureByUserId(@User.Identity.Name);
+    var rolename = await userInfo.GetRoleNameByUserId(@User.Identity.Name);
+    var navbarss = await userInfo.AssignPage(User.Identity.Name);
+    //var rolename = userInfos.firstName;
+    // var rolename = UserRole.name;
+    string orgType = await loggedinUser.usersOrganization(User.Identity.Name);
+    List<string> userRoles = await loggedinUser.UsersRoles(User.Identity.Name);
+    int myEmpId = await loggedinUser.UserEmpId(User.Identity.Name);
+    string url = loggedinUser.UserAuthUrl(myEmpId);
+
+    if (url == null || url == "")
+    {
+        url = "images/user.png";
+    }
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>@ViewData["Title"] -OPUS</title>
+    <link rel="icon" type="image/x-icon" href="~/EmpImages/umojaLayout.jpg">
+
+
+    @*<link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />*@
+
+    <link href="~/LayoutAssets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://use.fontawesome.com/releases/v5.0.1/css/all.css" rel="stylesheet">
+    <link href="~/LayoutAssets/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" rel="stylesheet" />
+    @*<link href="~/LayoutAssets/css/themify-icons.css" rel="stylesheet" />*@
+    <!-- PLUGINS STYLES-->
+    <link href="~/LayoutAssets/css/jquery-jvectormap-2.0.3.css" rel="stylesheet" />
+    <!-- THEME STYLES-->
+    <link href="~/LayoutAssets/css/main.min.css" rel="stylesheet" />
+    <link href="~/LayoutAssets/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.12.1/css/dataTables.bootstrap4.min.css" rel="stylesheet" />
+    <link href="~/Yam/Assets/css/toastr.min.css" rel="stylesheet" />
+    <link href="https://cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" />
+    <link href="~/SweetAlert/sweetalert2.css" rel="stylesheet" />
+    <!-- PAGE LEVEL STYLES-->
+    <link href="http://code.jquery.com/ui/1.10.2/themes/smoothness/jquery-ui.css" rel="Stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Material+Icons" rel="stylesheet">
+    <link href="~/Assets/select2/select2.min.css" rel="stylesheet" />
+    <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+    <style>
+        /*Parsly  Section*/
+        input.parsley-success,
+        select.parsley-success,
+        textarea.parsley-success {
+            color: #468847;
+            background-color: #DFF0D8;
+            border: 1px solid #D6E9C6;
+        }
+
+        input.parsley-error,
+        select.parsley-error,
+        textarea.parsley-error {
+            color: #B94A48;
+            background-color: #F2DEDE;
+            border: 1px solid #EED3D7;
+        }
+
+        .parsley-errors-list {
+            margin: 2px 0 3px;
+            padding: 0;
+            list-style-type: none;
+            font-size: 0.9em;
+            line-height: 0.9em;
+            opacity: 0;
+            transition: all .3s ease-in;
+            -o-transition: all .3s ease-in;
+            -moz-transition: all .3s ease-in;
+            -webkit-transition: all .3s ease-in;
+        }
+
+            .parsley-errors-list.filled {
+                opacity: 1;
+            }
+
+        .parsley-type, .parsley-required, .parsley-equalto {
+            color: #ff0000;
+        }
+
+        .page-brand {
+            /*background-color: #1B2631 !important;*/
+            background-color: #fff !important;
+        }
+
+        .admin-info {
+            /*background-color: #2bceb0 !important;*/
+            background-color: #616A6B !important;
+        }
+
+        .ui-autocomplete {
+            cursor: pointer;
+            height: 400px;
+            width: 300px;
+            overflow-y: scroll;
+            z-index: 1050;
+        }
+
+        ul#navbarMenus li a {
+            color: white;
+        }
+
+            ul#navbarMenus li a:hover .nav-label {
+                font-weight: bold;
+            }
+
+            ul#navbarMenus li a:hover .sidebar-item-icon {
+                font-size: 17px;
+            }
+
+        .sidebar-item-icon, .nav-link i, .nav-link span {
+            text-shadow: 1px 1px gray;
+        }
+
+        .nav-label {
+            text-shadow: 1px 1px gray;
+        }
+        /*#sidebar{
+                                    position: fixed;
+                                }*/
+
+        #sidebar {
+            /*background: linear-gradient(45deg, rgba(75,170,107,1) 0%, rgba(0,200,200,1) 100%);*/
+            background-color: #212F3C !important;
+        }
+
+        .collapsed:hover {
+            background: transparent;
+        }
+
+        .swal-button--closetheday {
+            background-color: #DC3545;
+        }
+
+        .swal-button--expand {
+            background-color: #007ACC;
+        }
+
+        .swal-text {
+            color: black;
+            font-size: 20px;
+        }
+
+        .activeNav:not(.dropdown-toggle):not(.navhead) {
+            background-color: #3498db;
+            color: white;
+            border-left: 5px solid #932536;
+        }
+
+        .serverText {
+            color: #921236;
+            font-size: 20px;
+            font-weight: bold;
+            margin-left: 50px;
+        }
+
+        .serverStatus {
+            color: darkblue;
+            font-size: 20px;
+            animation: serverAnim 5s linear 2s infinite alternate;
+        }
+
+        @@keyframes serverAnim {
+            0% {
+                color: darkgreen;
+            }
+
+            25% {
+                color: cyan;
+            }
+
+            50% {
+                color: green;
+            }
+
+            75% {
+                color: Highlight;
+            }
+
+            100% {
+                color: lightyellow;
+            }
+        }
+
+        * {
+            font-family: 'Indie Flower', sans-serif;
+            font-style: normal;
+            font-weight: 400;
+        }
+
+        a.paginate_button {
+            padding: 5px 7px;
+            background: #23B7E5;
+            color: white;
+            margin: 1px;
+        }
+
+            a.paginate_button:hover, a.paginate_button.current {
+                padding: 5px 7px;
+                background: #272828;
+                color: white;
+                margin: 1px;
+            }
+
+        .outer-box {
+        }
+
+        .profile-box {
+            background-color: white;
+            width: 290px;
+            height: 332px;
+            position: fixed;
+            right: 7px;
+            top: 57px;
+            border: 1px solid #E8EAED;
+            box-shadow: inset;
+            z-index: 1000;
+        }
+
+        .first-part {
+            background-color: #E8EAED;
+            height: 90px;
+        }
+
+        .second-part .img-box {
+            display: flex;
+        }
+
+        .second-part img {
+            width: 62px;
+            margin: 0 auto;
+            margin-top: -35px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+
+        .person-info {
+            text-align: center;
+        }
+
+            .person-info h5:first-child {
+                font-size: 15px;
+                color: rgb(56, 56, 56);
+                margin-top: 5px;
+            }
+
+            .person-info h5:nth-child(2) {
+                font-size: 15px;
+                color: rgb(97, 96, 96);
+            }
+
+            .person-info h5:nth-child(3) {
+                font-size: 15px;
+                color: rgb(97, 96, 96);
+            }
+
+        #passChange {
+            background: #860116;
+            padding: 5px;
+            display: block;
+            text-align: center;
+            color: white;
+            margin: 0 10px;
+            border: 1px solid white;
+        }
+
+        #logOut {
+            background: #00388F;
+            padding: 5px;
+            display: block;
+            text-align: center;
+            color: white;
+            margin: 0 10px;
+            border: 1px solid white;
+        }
+
+        #passChange:hover {
+            background: #D6DBE9;
+            border: 1px solid #860116;
+            color: black;
+        }
+
+        #logOut:hover {
+            background: #D6DBE9;
+            border: 1px solid #00388F;
+            color: black;
+        }
+
+        .icon-box {
+            display: flex;
+            width: 35%;
+            text-align: center;
+            margin: 0 auto;
+            justify-content: space-between;
+        }
+
+            .icon-box i {
+                font-size: 13px;
+                border-radius: 50%;
+                padding: 7px;
+                color: #555454;
+                border: 1px solid #C1C1C1;
+            }
+
+                .icon-box i:hover {
+                    background-color: #C1C1C1;
+                }
+
+        .prof-refresh {
+            color: white;
+            font-size: 10px;
+            background: green;
+            padding: 4px;
+            border-radius: 50%;
+        }
+
+        .list-items .refresh {
+            color: white;
+            font-size: 10px;
+            background: green;
+            padding: 4px;
+            border-radius: 50%;
+        }
+
+        .list-items {
+            margin: 30px 20px;
+        }
+
+        .ColAmt {
+            text-align: right !important;
+        }
+
+        .brandName {
+            font-weight: bolder;
+            color: darkblue;
+            font-size: 18pt;
+            padding-left: 5px;
+        }
+
+        @@media screen and (max-width: 480px) {
+            .brandName {
+                font-size: 12pt;
+            }
+        }
+    </style>
+    @RenderSection("Style", required: false)
+</head>
+<body class="has-animation fixed-navbar">
+
+    <!-- Topbar -->
+    <!-- START HEADER-->
+    <nav class="navbar navbar-expand navbar-light bg-white topbar static-top shadow">
+        <header class="header" style="height:80px">
+            <div class="page-brand d-flex p-0 m-0 justify-content-center" style="width:80px">
+                <i style="color:blue" class="fa fa-envelope"></i>
+            </div>
+            <div class="flexbox flex-1">
+                <span class="brandName">Mail-SMS Management</span>
+                <!-- START TOP-RIGHT TOOLBAR-->
+                <ul class="nav navbar-toolbar">
+                    <li class="dropdown dropdown-user">
+                        <a class="nav-link dropdown-toggle link" style="background: transparent; border: none;" data-toggle="dropdown" id="dropdownlist" onclick="openprofiles(this)">
+                            @if (url == null || url == "")
+                            {
+                                <img src="~/LayoutAssets/defaultman.png" style="border: 1px solid" />
+                            }
+                            else
+                            {
+                                <img src="/@url" style="border: 1px solid" />
+                            }
+                            <span></span>@userInfos.UserName@*<i class="fa fa-angle-down m-l-5"></i>*@
+                            <input type="hidden" id="branchDateH" value="" />
+                        </a>
+
+                    </li>
+                </ul>
+                <!-- END TOP-RIGHT TOOLBAR-->
+
+                <div class="profile-box" style="display: none;">
+                    <div class="first-part"></div>
+                    <div class="second-part">
+                        <div class="img-box">
+                            @if (url == null || url == "")
+                            {
+                                <img src="~/LayoutAssets/defaultman.png" style="border: 1px solid" />
+                            }
+                            else
+                            {
+                                <img src="/@url" style="border: 1px solid" />
+                            }
+                        </div>
+                        <div class="person-info">
+                            <h5>@empInfo?.nameEnglish</h5>
+                            <h5 style="font-weight: bold;" id="ccountryName"></h5>
+                            <h5>@rolename</h5>
+                        </div>
+                        @*<div class="icon-box">
+                            <i class="fa fa-key" aria-hidden="true"></i>
+                            <i class="fa fa-key" aria-hidden="true"></i>
+                            <i class="fa fa-key" aria-hidden="true"></i>
+                            </div>*@
+                        <hr>
+
+                        <div class="row">
+                            <div class="col-md-12">
+                                <a href="javascript:void(0)" id="passChange" data-toggle="modal" data-target="#PasswordChangeModal"><i class="fas fa-user-cog fa-sm fa-fw mr-2 text-gray-400"></i> Change Password</a>
+                            </div>
+                            <div class="col-md-12 mt-2">
+                                <a href="javascript:void(0)" id="logOut" data-toggle="modal" data-target="#logoutModal"><i class="fa fa-power-off"></i> Logout</a>
+                            </div>
+                        </div>
+                        @*<div class="list-items">
+                            <i class="fa fa-refresh refresh" aria-hidden="true"></i> <span> Sync is on</span> <br><br>
+                            <i class="fas fa-envelope envelope" aria-hidden="true"></i> <span> Manage your google account</span>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+        </header>
+    </nav>
+    <!-- END HEADER-->
+    
+    <div class="page-wrapper">
+        <!-- Sidebar -->
+        <ul class="navbar-nav sidebar sidebar-dark accordion" style="font-weight: bolder; background: brown;background-image: linear-gradient(180deg,#514A9D 0%,#24C6DC 70%);float:left;padding-top:30px" id="accordionSidebar">
+
+            <!-- Divider -->
+            <hr class="sidebar-divider my-0"/>
+
+            <!-- Nav Item - Dashboard -->
+            <li class="nav-item">
+                <a class="nav-link" asp-controller="Home" asp-action="Index">
+                    @*<i class="fas fa-fw fa-tachometer-alt"></i>*@
+                    <i class="fas fa-home"></i>
+                    <span style="color:white;">Home</span>
+                </a>
+            </li>
+            @foreach (var item in navbarss.ERPModules.Where(x => x.isDelete != 1))
+            {
+                <!-- Divider -->
+                <hr class="sidebar-divider  my-0">
+
+                <!-- Nav Item - Pages Collapse Menu -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse_@item.moduleName.Replace(" ", "")" aria-expanded="true" aria-controls="collapse_@item.moduleName.Replace(" ", "")">
+                        <i class="fas fa-bars"></i>
+                        <span style="color:white;">@item.moduleName</span>
+                    </a>
+                    @foreach (var itemchid in navbarss.navbars.Where(x => x.moduleId == item.Id && x.parentID == 0))
+                    {
+                        if (itemchid.isParent == 0)
+                        {
+                            <div id="collapse_@item.moduleName.Replace(" ", "")" class="collapse" aria-labelledby="heading_@item.moduleName.Replace(" ", "")" data-parent="#accordionSidebar">
+                                <div class="py-2 collapse-inner rounded" style="background: #dcdfe5;">
+                                    <a class="collapse-item" href="@Url.Action("GridMenuPage", "Home", new { moduleId = @itemchid.moduleId, perentId = @itemchid.Id  })"><span>@itemchid.nameOption</span></a>
+
+                                </div>
+                            </div>
+                        }
+                    }
+                </li>
+            }
+
+            <!-- Sidebar Toggler (Sidebar) -->
+
+            <div class="text-center d-none d-md-inline">
+                <button class="rounded-circle border-0" id="sidebarToggle"></button>
+            </div>
+        </ul>
+
+        <!-- End of Sidebar -->
+        @*</nav>*@
+
+        @*}*@
+        <!-- END SIDEBAR-->
+        <div class="content-wrapper pageDiv" style="padding-top: 30px !important; overflow:hidden">
+
+            <input type="hidden" id="closingTimeL" value="" />
+            <input type="hidden" id="closeStatusL" value="" />
+            <!-- START PAGE CONTENT-->
+            @RenderBody()
+            <!-- END PAGE CONTENT-->
+            <footer class="page-footer text-center justify-content-center">
+                <div class="font-13 text-center">@DateTime.Now.Year © <b>OPUS</b> - All rights reserved.</div>
+            </footer>
+        </div>
+    </div>
+    <!-- END THEME CONFIG PANEL-->
+    <!-- BEGIN PAGA BACKDROPS-->
+    <div class="sidenav-backdrop backdrop"></div>
+    @*<div class="preloader-backdrop">
+        <div class="page-preloader">Loading</div>
+        </div>*@
+    <!-- END PAGA BACKDROPS-->
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="height: 55px !important;">Select "Logout" below if you are ready to end your current session.</div>
+                <div class="modal-footer">
+                    <form asp- method="post" asp-area="Auth" asp-controller="Account" asp-action="Logout" id="logoutForm" class="navbar-right">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <button type="submit" onclick="ClearLocalStorage()" class="btn btn-success">Logout</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Change Password Modal-->
+    <div class="modal fade" id="changePasswordModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Change Password </h5>
+                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form role="form" id="changePassForm" data-parsley-validate="parsley">
+                        @*<div class="form-group row">
+                            <label class="col-md-4 col-lg-4 col-sm-12" style="color:black;" for="OldPassword">Current Password<span style="float:right;">:</span></label>
+                            <div class="col-md-8 col-lg-8 col-sm-12">
+                            <input type="password" class="form-control" id="OldPassword" name="OldPassword" autocomplete="off" data-parsley-required="true" />
+                            </div>
+                            </div>*@
+                        <div class="form-group row">
+                            <label class="col-md-4 col-lg-4 col-sm-12" style="color:black;" for="Password">New Password<span style="float:right;">:</span></label>
+                            <div class="col-md-8 col-lg-8 col-sm-12">
+                                <input type="password" class="form-control" id="Password" name="Password" autocomplete="off" data-parsley-required="true" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-4 col-lg-4 col-sm-12" style="color:black;" for="ConfirmPassword">Confirm Password<span style="float:right;">:</span></label>
+                            <div class="col-md-8 col-lg-8 col-sm-12">
+                                <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" autocomplete="off" data-parsley-required="true" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12 col-lg-12 col-sm-12">
+                                <button type="button" id="changePassBtn" style="float:right;" class="btn btn-success">Submit</button>
+                                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="PasswordChangeModal" tabindex="-1" data-backdrop="static" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Change Password </h5>
+
+                </div>
+                <div class="modal-body">
+                    <form asp-area="Auth" asp-controller="Account" asp-action="ChangePassword" method="post" role="form" data-parsley-validate="parsley">
+                        <div class="form-group row">
+                            <label class="col-md-4 col-lg-4 col-sm-12" style="color:black;" for="OldPassword">Current Password<span style="float:right;">:</span></label>
+                            <div class="col-md-8 col-lg-8 col-sm-12 input-group">
+                                <input type="password" class="form-control" id="OldPassword" name="OldPassword" autocomplete="off" data-parsley-required="true" />
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i id="eyecurr" class="far fa-eye-slash" onclick="showHidePwdCurr();"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-4 col-lg-4 col-sm-12" style="color:black;" for="Password">New Password<span style="float:right;">:</span></label>
+                            <div class="col-md-8 col-lg-8 col-sm-12 input-group">
+                                <input type="password" class="form-control" id="Password" name="Password" autocomplete="off" data-parsley-required="true" />
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i id="eyenew" class="far fa-eye-slash" onclick="showHidePwdNew();"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-md-4 col-lg-4 col-sm-12" style="color:black;" for="ConfirmPassword">Confirm Password<span style="float:right;">:</span></label>
+                            <div class="col-md-8 col-lg-8 col-sm-12 input-group">
+                                <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword" autocomplete="off" data-parsley-required="true" />
+                                <div class="input-group-append">
+                                    <span class="input-group-text">
+                                        <i id="eyecon" class="far fa-eye-slash" onclick="showHidePwdCon();"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <div class="col-md-12 col-lg-12 col-sm-12">
+                                <button type="submit" style="float:right;" class="btn btn-success">Submit</button>
+                                <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade right" id="profilemodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" style="left: 135%; width: 50%;">
+                <div class="modal-header">
+                    <div class="col-12">
+                        <i class='fas fa-user-tie  fa-fw mr-2 text-gray-400'></i>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>Cancel</button>
+                    </div>
+                </div>
+                <div class="modal-body">
+                    <div class="card">
+                        <div class="card-body" style="text-align: center;">
+                            <div class="col-sm-12">
+                                @empInfo?.nameEnglish
+
+                            </div>
+                            <div class="col-sm-12">
+                                @rolename
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @*<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary">Save changes</button>*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="expandTimeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel2"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">x</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-0">
+                        <input type="number" class="form-control" id="expandMin" value="0" min="0" max="60">
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="basic-addon1">Minutes</span>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="text-info text-danger"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="expandMinutes()">Expand</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CORE PLUGINS-->
+    <script src="~/LayoutAssets/js/jquery.min.js" type="text/javascript"></script>
+    <script src="~/LayoutAssets/js/popper.min.js" type="text/javascript"></script>
+    <script src="~/LayoutAssets/js/bootstrap.min.js" type="text/javascript"></script>
+    <script src="~/LayoutAssets/js/metisMenu.min.js" type="text/javascript"></script>
+    <script src="~/LayoutAssets/js/jquery.slimscroll.min.js" type="text/javascript"></script>
+    <script src="~/vendor/fontawesome-free/js/fontawesome.js"></script>
+    <!-- PAGE LEVEL PLUGINS-->
+    <script src="~/LayoutAssets/js/jquery-jvectormap-2.0.3.min.js" type="text/javascript"></script>
+    <script src="~/LayoutAssets/js/jquery-jvectormap-world-mill-en.js" type="text/javascript"></script>
+    <script src="~/LayoutAssets/js/jquery-jvectormap-us-aea-en.js" type="text/javascript"></script>
+    <!-- CORE SCRIPTS-->
+    <!-- PAGE LEVEL SCRIPTS-->
+    <!-- Custom Date Picker-->
+    <script src="https://unpkg.com/gijgo@1.9.11/js/gijgo.min.js" type="text/javascript"></script>
+
+    <!-- PAGE LEVEL PLUGINS-->
+    <script src="~/LayoutAssets/js/jquery.validate.min.js" type="text/javascript"></script>
+    <!-- CORE SCRIPTS-->
+    <script src="~/LayoutAssets/js/app.min.js" type="text/javascript"></script>
+    <script src="~/js/parsly.js"></script>
+    <script src="~/js/common.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.2/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-migrate/3.0.1/jquery-migrate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js"></script>
+
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    @*Datatable old*@
+    @*<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>*@
+    <!-- Page level custom scripts -->
+    @*<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>*@
+
+    @*<script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>
+        <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap4.min.js"></script>
+    *@
+
+    <!-- Page level custom scripts -->
+    @*<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.6/js/dataTables.buttons.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.html5.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/1.5.6/js/buttons.print.min.js"></script>*@
+    @*Datatable old*@
+
+    <script src="~/Yam/Assets/js/toastr.min.js"></script>
+
+    <script src="~/SweetAlert/sweetalert2.common.js"></script>
+    <script src="~/SweetAlert/sweetalert2.js"></script>
+
+    @*<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>*@
+    <script src="~/Assets/select2/select2.min.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="~/js/sb-admin-2.min.js"></script>
+    <script type="text/javascript">
+        var open = 0;
+        var BranchBusinessDateLatest;
+        //function ajaxFunctionCheckUserLogin(response) {
+        //    if (response.isPassChange == 0 || response.isPassChange == null) {
+        //        $('#OldPassword').val('Umoja@123').attr('readonly', true);
+        //        $('#changePasswordModal').modal('show');
+        //    }
+        //    else {
+        //        var date2 = new Date();
+        //        var date1 = new Date(response.passChangeDate);
+        //        var Difference_In_Time = date2.getTime() - date1.getTime();
+        //        var days = Difference_In_Time / (1000 * 3600 * 24);
+
+        //    }
+        //}
+        $(document).ready(function () {
+            // Common.Ajax('GET', '/Auth/Account/GetLastPassChange', [], 'json', ajaxFunctionCheckUserLogin, false);
+            //$('#changePassBtn').click(function () {
+            //    var formData = $('#changePassForm').serialize();
+            //    $.ajax({
+            //        url: '/Auth/Account/ChangePasswordNew',
+            //        data: formData,
+            //        processData: false,
+            //        contentType: false,
+            //        type: 'GET',
+            //        success: function (data) {
+            //            if (data == 'ok') {
+            //                swal('success', 'Password changed successfully!', 'success').then(function () {
+            //                    window.location.href = '/Auth/Account/Login';
+            //                });
+            //            }
+            //            else {
+            //                swal('warning', 'Can not change the password. Please try again!', 'warning');
+            //            }
+            //        }
+            //    });
+            //})
+            $('#sidebarToggle').on('click', function () {
+                var cls = $('body').hasClass('sidebar-mini');
+                if (cls) {
+                    $('body').removeClass('sidebar-mini');
+                }
+                else {
+                    $('body').addClass('sidebar-mini');
+                }
+            })
+            
+            //var automatic = setInterval(automaticPopup, 1000);
+            $('.close').on('click', function () {
+                open = 0;
+            })
+
+            $('.submenu').removeClass('activeNav');
+            $('#menu_dashboard').removeClass('activeNav');
+            localStorage.removeItem('dash');
+            var hightlightClass = localStorage.getItem('clsname');
+
+            if (localStorage.getItem('dash') != null) {
+                $('#' + localStorage.getItem('dash') + ' span').addClass('activeNav');
+            }
+            else {
+                $('.' + hightlightClass).addClass('activeNav');
+            }
+
+
+            var expandMenu = localStorage.getItem('menuname');
+            $('#accordionSidebar_' + expandMenu).find('a.collapsed').removeClass('collapsed');
+            $('#accordionSidebar_' + expandMenu + ' .collapse').addClass('show');
+
+            $('.nav-item a.nav-link.collapsed').on('click', function () {
+                var menu = $(this).find('span').prop('id').split('_')[1];
+                localStorage.setItem('menuname', menu);
+                localStorage.removeItem('dash');
+            })
+
+            $('#menu_dashboard').on('click', function () {
+                $('.submenu').removeClass('activeNav');
+                localStorage.setItem('dash', $(this).prop('id'));
+            })
+            $('.nav-link').click(function () {
+                if ($(this).hasClass('activeNav')) {
+                    $(this).removeClass('activeNav');
+                }
+                else {
+                    $('.nav-link').removeClass('activeNav');
+                    $(this).addClass('activeNav');
+                }
+            })
+        @*$('#navbarMenus').load('@Url.Action("AssignPage", "Home")');*@
+                        })
+        function commaSeparateNumber(val) {
+            if (val != 0 && val != null) {
+                val = val.toString().replace(/,/g, ''); //remove existing commas first
+
+                var valRZ = val.replace(/^0+/, ''); //remove leading zeros, optional
+                var valSplit = valRZ.split('.'); //then separate decimals
+
+                while (/(\d+)(\d{3})/.test(valSplit[0].toString())) {
+                    valSplit[0] = valSplit[0].toString().replace(/(\d+)(\d{3})/, '$1' + ',' + '$2');
+                }
+
+                if (valSplit.length == 2) { //if there were decimals
+                    val = valSplit[0] + "." + valSplit[1]; //add decimals back
+                } else {
+                    val = valSplit[0];
+                }
+            }
+            return val;
+        }
+
+        function formatDateMonthName(date) {
+            var monthName = "";
+            date = new Date(date);
+            var year = date.getFullYear(),
+                month = date.getMonth() + 1, // months are zero indexed
+                day = date.getDate(),
+                hour = date.getHours(),
+                minute = date.getMinutes(),
+                second = date.getSeconds(),
+                hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
+                minuteFormatted = minute < 10 ? "0" + minute : minute,
+                morning = hour < 12 ? "am" : "pm";
+            if (month == 1) {
+                monthName = "Jan";
+            }
+            else if (month == 2) {
+                monthName = "Feb";
+            }
+            else if (month == 3) {
+                monthName = "Mar";
+            }
+            else if (month == 4) {
+                monthName = "Apr";
+            }
+            else if (month == 5) {
+                monthName = "May";
+            }
+            else if (month == 6) {
+                monthName = "Jun";
+            }
+            else if (month == 7) {
+                monthName = "Jul";
+            }
+            else if (month == 8) {
+                monthName = "Aug";
+            }
+            else if (month == 9) {
+                monthName = "Sep";
+            }
+            else if (month == 10) {
+                monthName = "Oct";
+            }
+            else if (month == 11) {
+                monthName = "Nov";
+            }
+            else {
+                monthName = "Dec";
+            }
+            return day + "-" + monthName + "-" + year;
+        }
+
+        function openInNewTab(href) {
+            Object.assign(document.createElement('a'), {
+                target: '_blank',
+                rel: 'noopener noreferrer',
+                href: href,
+            }).click();
+        }
+
+        function expandTimeModal() {
+            $('#expandTimeModal').modal('show');
+        }
+        function DayClose() {
+            $.ajax({
+                url: "/Loans/DayOpenClose/CloseTheDay",
+                type: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    toastr.success('Day closed successfully!', 'Created',
+                        {
+                            timeOut: 1000,
+                            fadeOut: 1000,
+                            onHidden: function () {
+                                //window.location.reload(); --undo later
+                            }
+                        }
+                    );
+                }
+            });
+        }
+        function expandMinutes() {
+            var maxExpandCount = '';
+            var maxExpandLimit = '';
+
+            var min = $('#expandMin').val();
+
+            if (parseInt(maxExpandLimit) >= parseInt(min)) {
+                $.ajax({
+                    url: "/Loans/DayOpenClose/ExpandMinutes?min=" + min,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (res) {
+                        toastr.success('Time expanded successfully by ' + min + ' minutes!', 'Expanded',
+                            {
+                                timeOut: 1000,
+                                fadeOut: 1000,
+                                onHidden: function () {
+                                    //window.location.reload(); --undo later
+                                }
+                            }
+                        );
+                    }
+                });
+            }
+            else {
+                alert('Time limit exceed!');
+            }
+
+        }
+        @*function automaticPopup() {
+            var closignTimeToday = '@todayClosing.closingTime'
+            var closeStatusL = '@dayclose.status';
+
+            if (new Date() >= new Date(closignTimeToday) && closeStatusL == "Automatic") {
+            if (open != 1) {
+            swal("Warning!", "Do you want to close the day?", {
+            buttons: {
+            closetheday: "Close Now!",
+            expand: "Expand!",
+            //catch: {
+            //    text: "Throw Pokéball!",
+            //    value: "catch",
+            //},
+            cancel: false,
+            },
+            })
+            .then((value) => {
+            switch (value) {
+
+            case "expand":
+            expandTimeModal();
+            break;
+            case "closetheday":
+            DayClose();
+            break;
+            default:
+            break;
+            }
+            });
+            }
+            open = 1;
+            }
+            else {
+            console.log(33)
+            }
+
+            }*@
+
+            function LocalSet(moduleId, parentId) {
+
+                var cls = 'submenu_' + moduleId + parentId;
+                localStorage.setItem('clsname', cls);
+            }
+        function setCookie(cname, cvalue, exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+            var expires = "expires=" + d.toUTCString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            //location.reload(true);--undo later
+        }
+        function ajaxFunctionCheckUserLogin(response) {
+            if (response.isPassChange == 0 || response.isPassChange == null) {
+                //$('#OldPassword').val('Umoja@123').attr('readonly', true);
+                $('#changePasswordModal').modal('show');
+            }
+            else {
+                var date2 = new Date();
+                var date1 = new Date(response.passChangeDate);
+                var Difference_In_Time = date2.getTime() - date1.getTime();
+                var days = Difference_In_Time / (1000 * 3600 * 24);
+            }
+        }
+        var openDate = '';
+        $(document).ready(function () {
+            Common.Ajax('GET', '/api/GetProjectBasicInfos', [], 'json', ajaxGetProjectBasicInfos, false);
+            Common.Ajax('GET', '/Loans/DayOpenClose/GetLastOpenDate', [], 'json', ajaxGetLastClosingDate1, false);
+            Common.Ajax('GET', '/Groups/GroupInfo/GetNotifications', [], 'json', ajaxGetNotifications, false);
+
+            //Common.Ajax('GET', '/Auth/Account/GetLastPassChange', [], 'json', ajaxFunctionCheckUserLogin, false);
+
+            //         $('#changePassBtn').click(function () {
+            //             var formData = $('#changePassForm').serialize();
+            //             $.ajax({
+            //                 url: '/Auth/Account/ChangePasswordNew',
+            //                 data: formData,
+            //                 processData: false,
+            //                 contentType: false,
+            //                 type: 'GET',
+            //                 success: function (data) {
+            //                     if (data == 'ok') {
+            //                         swal('success', 'Password changed successfully!', 'success').then(function() {
+            //                             window.location.href = '/Auth/Account/LoginBuet';
+            //                         });
+            //                     }
+            //                     else {
+            //                         swal('warning', 'Can not change the password. Please try again!', 'warning');
+            //                     }
+            //                 }
+            //             });
+            //         })
+            //         $('[data-toggle="tooltip"]').tooltip();
+
+            //         $('#lanBAN').click(function ()
+            //         {
+            //             setCookie('lang', 'bn', 30);
+            //         });
+            //         $('#lanENG').click(function ()
+            //         {
+            //             setCookie('lang', 'en', 30);
+            //         });
+
+            //         $('.customSelect').select2();
+            //         $(".select2").css("width", "100%");
+            //         $(".select2-selection--single").css("height", "33px");
+            //         $(".select2-selection--single").css("border", "1px solid #d1d3e2");
+            //$(".select2-selection__rendered").css("line-height", "32px");
+
+            //$('.fa-bell').hover(function () {
+            //	Common.Ajax('GET', '/SCMRequisition/RequisitionMaster/GetNotificationsApi', [], 'json', ajaxFunctionNotify, false);
+            //})
+            //Common.Ajax('GET', '/SCMRequisition/RequisitionMaster/UnreadNotificationCount', [], 'json', ajaxFunctionUreadNotify, false);
+
+        });
+        function ajaxGetProjectBasicInfos(res) {
+            $('#ccountryLogo').attr('src', '/ProjectAssets/' + res.countryLogo);
+            $('#ccountryLogo').attr('title', res.countryName);
+            $('#ccurrency').attr('src', '/ProjectAssets/' + res.currency);
+            $('#ccountryName').text(res.countryName);
+            $('.serverText').text(res.serverName);
+        }
+        function ajaxGetNotifications(res) {
+            console.log(res);
+
+            var option = '';
+            $.each(res, function (i, item) {
+                option += `<a class="list-group-item" href="${item.url}" target="_blank" onclick="ViewNotification(${item.Id})">
+                                                <div class="media">
+                                                    <div class="media-img">
+                                                        <span class="badge badge-success badge-big"><i class="fa fa-check"></i></span>
+                                                    </div>
+                                                    <div class="media-body">
+                                                        <div class="font-13">${item.title}</div><small class="text-muted">${item.description}</small>
+                                                    </div>
+                                                </div>
+                                            </a>`
+            })
+
+            $('#notificationBody').empty();
+            $('#notificationBody').append(option);
+
+            $('#countNotification').text(res.length);
+        }
+
+        function ViewNotification(id) {
+            Common.Ajax('GET', '/Groups/GroupInfo/UpdateNotificaiton?id=' + id + '&isRead=1', [], 'json', ajaxUpdateNotificaiton, false);
+        }
+
+        function ajaxUpdateNotificaiton(res) {
+            console.log(res);
+        }
+
+        function ajaxFunctionNotify(response) {
+            var option = '';
+            $.each(response, function (i, item) {
+                var date = formatDate(item.date);
+
+                if (item.isRead == 1) {
+                    option += `<div class="secRead new notify_${item.Id}" id="notify_${item.type}_${item.Id}">
+                                                <a href="javascript:void(0)">
+                                                    <div class="txt">
+                                                        <span style="font-weight: bold;">${item.title}</span> </br>
+                                                        <small>${item.description}</small>
+                                                    </div>
+                                                    <div class="txt sub">${date} <span class="badge badge-primary" style="font-size: 16px;">${item.type}</span></div>
+                                                </a>
+                                            </div>`
+                }
+                else {
+                    option += `<div class="sec new notify_${item.Id}" onclick="MarkAsRead(${item.Id})" id="notify_${item.type}_${item.Id}">
+                                                <a href="${item.url}">
+                                                    <div class="txt">
+                                                        <span style="font-weight: bold;">${item.title}</span> </br>
+                                                        <small>${item.description}</small>
+                                                    </div>
+                                                    <div class="txt sub">${date} <span class="badge badge-primary" style="font-size: 16px;">${item.type}</span></div>
+                                                </a>
+                                            </div>`
+                }
+
+
+            });
+
+            $('#notifyBox').empty();
+            $('#notifyBox').append(option);
+            $('#notifyBox').append(`<div style="display: flex; justify-content: center; background-color: lightgoldenrodyellow; text-decoration: none !important; align-items: center;"><a href="/SCMRequisition/RequisitionMaster/GetNotifications" style="padding: 5px;">View All</a></div>`);
+        }
+
+        function ajaxFunctionUreadNotify(response) {
+            if (response == 0) {
+                $('#notifyCount').text(0);
+            }
+            else {
+                $('#notifyCount').text(response);
+            }
+
+            $('#notifyBox').empty();
+            $('#notifyBox').append(response);
+        }
+
+        function MarkAsRead(id) {
+            Common.Ajax('GET', '/SCMRequisition/RequisitionMaster/ReadNotification?id=' + id, [], 'json', ajaxFunctionRead, false);
+        }
+        function ajaxFunctionRead(response) {
+        }
+
+        function ajaxGetLastClosingDate1(res) {
+            openDate = res;
+            console.log(openDate);
+            $('#branchDateH').val(openDate);
+            localStorage.setItem('branchDate', openDate);
+            $('#BranchDateLay').text('(Business Date: ' + formatDate(openDate) + ')');
+
+            BranchBusinessDateLatest = openDate;
+            var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            var dayName = days[new Date(openDate).getDay()];
+            $('#Wday').text(dayName);
+
+
+            //localStorage.setItem('openDate', openDate);
+        }
+        function TodayDate() {
+            date = new Date(openDate);
+            var year = date.getFullYear(),
+                month = date.getMonth() + 1, // months are zero indexed
+                day = date.getDate(),
+                hour = date.getHours(),
+                minute = date.getMinutes(),
+                second = date.getSeconds(),
+                hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
+                minuteFormatted = minute < 10 ? "0" + minute : minute,
+                morning = hour < 12 ? "am" : "pm";
+
+            return year + "-" + month + "-" + day;
+        }
+        function deleteAllCookies() {
+            var cookies = document.cookie.split(";");
+
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i];
+                var eqPos = cookie.indexOf("=");
+                var name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            }
+        }
+
+        function formatDate(date) {
+
+            date = new Date(date);
+            var year = date.getFullYear(),
+                month = date.getMonth() + 1, // months are zero indexed
+                day = date.getDate(),
+                hour = date.getHours(),
+                minute = date.getMinutes(),
+                second = date.getSeconds(),
+                hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
+                minuteFormatted = minute < 10 ? "0" + minute : minute,
+                morning = hour < 12 ? "am" : "pm";
+
+            return day + "/" + + month + "/" + year;
+        }
+        function formatDate3(date) {
+
+            date = new Date(date);
+            var year = date.getFullYear(),
+                month = date.getMonth() + 1, // months are zero indexed
+                day = date.getDate(),
+                hour = date.getHours(),
+                minute = date.getMinutes(),
+                second = date.getSeconds(),
+                hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
+                minuteFormatted = minute < 10 ? "0" + minute : minute,
+                morning = hour < 12 ? "am" : "pm";
+
+            return day + "-" + + month + "-" + year;
+        }
+        function formatDate4(date) {
+            var months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+            var year = date.getFullYear(),
+                month = date.getMonth() + 1, // months are zero indexed
+                day = date.getDate(),
+                hour = date.getHours(),
+                minute = date.getMinutes(),
+                second = date.getSeconds(),
+                hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
+                minuteFormatted = minute < 10 ? "0" + minute : minute,
+                morning = hour < 12 ? "am" : "pm";
+
+            return day + "-" + months[month] + "-" + year;
+        }
+        function formatDateyyyymmdd(date) {
+            date = new Date(date);
+            var year = date.getFullYear(),
+                month = date.getMonth() + 1, // months are zero indexed
+                day = date.getDate(),
+                hour = date.getHours(),
+                minute = date.getMinutes(),
+                second = date.getSeconds(),
+                hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
+                minuteFormatted = minute < 10 ? "0" + minute : minute,
+                morning = hour < 12 ? "am" : "pm";
+
+            return year + "-" + month + "-" + day;
+        }
+        function formatDate2(date) {
+            var months = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'July', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            date = new Date(date);
+            var year = date.getFullYear(),
+                month = date.getMonth() + 1, // months are zero indexed
+                day = date.getDate(),
+                hour = date.getHours(),
+                minute = date.getMinutes(),
+                second = date.getSeconds(),
+                hourFormatted = hour % 12 || 12, // hour returned in 24 hour format
+                minuteFormatted = minute < 10 ? "0" + minute : minute,
+                morning = hour < 12 ? "am" : "pm";
+            stringDay = day.toString();
+            if (day < 10) {
+                stringDay = '0' + stringDay;
+            }
+
+            return stringDay + "-" + months[month] + "-" + year;
+        }
+
+        function GetDayNameFromDate(date) {
+            var dd = new Date(date);
+            var days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+            return days[dd.getDay() - 1];
+        }
+
+        function ClearLocalStorage() {
+            window.localStorage.clear();
+        }
+        var BaseUrl = location.host;
+    </script>
+
+    <script>
+        $(".arlo_tm_resize").click(function () {
+            var existBtnClass = $(this).attr('class');
+            var existDrawerClass = $('.arlo_tm_leftpart_wrap').attr('class');
+            if (existBtnClass == 'arlo_tm_resize' && existDrawerClass == 'arlo_tm_leftpart_wrap') {
+                $(".arlo_tm_resize").addClass('opened');
+                $(".arlo_tm_leftpart_wrap").addClass('opened');
+            }
+            else {
+                $(".arlo_tm_resize").removeClass('opened');
+                $(".arlo_tm_leftpart_wrap").removeClass('opened');
+            }
+        })
+
+        function show(input) {
+            if (input.files && input.files[0]) {
+                var filerdr = new FileReader();
+                filerdr.onload = function (e) {
+                    console.log(input.value)
+                    $('#imagePath').text(input.value);
+                    $('#user_img').attr('src', e.target.result);
+                    imgfile.src = event.target.result;
+                }
+                filerdr.readAsDataURL(input.files[0]);
+            }
+        }
+
+
+        function showHidePwdNew() {
+            var input = document.getElementById("Password");
+            if (input.type === "password") {
+                input.type = "text";
+                document.getElementById("eyenew").className = "far fa-eye";
+            } else {
+                input.type = "password";
+                document.getElementById("eyenew").className = "far fa-eye-slash";
+            }
+        }
+
+        function showHidePwdCon() {
+            var input = document.getElementById("ConfirmPassword");
+            if (input.type === "password") {
+                input.type = "text";
+                document.getElementById("eyecon").className = "far fa-eye";
+            } else {
+                input.type = "password";
+                document.getElementById("eyecon").className = "far fa-eye-slash";
+            }
+        }
+
+        function showHidePwdCurr() {
+            var input = document.getElementById("OldPassword");
+            if (input.type === "password") {
+                input.type = "text";
+                document.getElementById("eyecurr").className = "far fa-eye";
+            } else {
+                input.type = "password";
+                document.getElementById("eyecurr").className = "far fa-eye-slash";
+            }
+        }
+        function openprofiles(e) {
+            $('.profile-box').slideToggle();
+        }
+        $(function () {
+            $('#dropdownlist').click(function () {
+                $(this).next('.profile-box').slideToggle(200);
+            });
+
+            $(document).click(function (e) {
+                var target = e.target;
+                if (!$(target).is('#dropdownlist') && !$(target).parents().is('#dropdownlist')) { $('.profile-box').slideUp(200); }
+            });
+        });
+
+
+
+        function openprofile() {
+            $('#profilemodal').modal('show')
+        }
+        function getYearsforAgeCriteria(from, to) {
+            var d1 = new Date(from),
+                d2 = new Date(to),
+                yr = [];
+
+            for (var i = d1.getFullYear(); i <= d2.getFullYear(); i++) {
+                yr.push(i);
+            }
+
+            return yr;
+        }
+
+        function DateDifference(date1, date2) {
+            var diff = 0;
+            $.ajax({
+                url: "/api/DateDifference/" + date1 + '/' + date2,
+                type: 'GET',
+                dataType: 'json',
+                async: false,
+                success: function (res) {
+                    diff = res;
+                }
+            });
+
+            return diff;
+        }
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,250 @@
+﻿@model OTPViewModel2;
+@{
+    ViewData["Title"] = "OTP Verify";
+    Layout = "~/Views/Shared/_PrintView.cshtml";
+}
+<style>
+    #wrapper {
+        font-family: Lato;
+        font-size: 1.5rem;
+        text-align: center;
+        box-sizing: border-box;
+        color: #333;
+    }
+
+    #dialog {
+        border: solid 1px #ccc;
+        margin: 10px auto;
+        padding: 20px 30px;
+        display: inline-block;
+        box-shadow: 0 0 4px #ccc;
+        background-color: #faf8f8;
+        overflow: hidden;
+        position: relative;
+        max-width: 450px;
+    }
+
+    h3 {
+        margin: 0 0 10px;
+        padding: 0;
+        line-height: 1.25;
+    }
+
+    span {
+        font-size: 90%;
+    }
+
+    #form {
+        max-width: 240px;
+        margin: 25px auto 0;
+    }
+
+    input {
+        margin: 0 5px;
+        text-align: center;
+        line-height: 80px;
+        font-size: 50px;
+        border: solid 1px #ccc;
+        box-shadow: 0 0 5px #ccc inset;
+        outline: none;
+        width: 20%;
+        transition: all 0.2s ease-in-out;
+        border-radius: 3px;
+    }
+
+
+
+
+
+    div {
+        position: relative;
+        z-index: 1;
+    }
+
+    img {
+        position: absolute;
+        bottom: -70px;
+        right: -63px;
+    }
+</style>
+<link href="~/SweetAlert/sweetalert2.css" rel="stylesheet" />
+
+<div class="row">
+    <div class="col-md-12 col-12 ">
+        <div class="row">
+            <div class="col-md-6 offset-4 col-12" style="margin:4% auto 0 auto!important;">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="col-md-12 col-12">
+                            <div class="text-center">
+                                <img src="~/images/L&FLOG CDMS.png" class="img-fluid rounded-circle" style="width:30%; height:30%" />
+                            </div>
+                        </div>
+                        <div class="col-md-12 col-12 mt-2 mb-2">
+                            <h4 class="text-center">OTP Verification</h4>
+                        </div>
+                        <div class="col-12">
+                            <form id="formId">
+
+                                <div class="col-md-12 col-12 mb-auto">
+
+                                    <div class="col-md-12 col-12">
+                                        <span class="m-0" style="color:black;">User Mobile Number <b id="otpMobile"></b>.<br />A 6-digit One Time PIN has been sent to your Number.</span>
+                                        <div class="form-group col-md-5">
+                                            <input type="hidden" name="otpCode" id="UserOTPCode" maxlength="6" required />
+                                            <input type="hidden" name="userName" id="userName" value="@Model.userInfo?.UserName" required />
+                                            <input type="hidden" name="timeOut" id="timeOut" value="0" />
+                                        </div>
+                                        <label for="otpNumber" style="font-size:19px;color:red;font-weight:bolder" class="col-12 text-center">Enter Your OTP Code</label>
+
+                                        <div class="form-group">
+                                            <div class="col-12" style="font-size:15px;text-align:center">
+                                                <input type="text" onkeyup="fnNextOTP(1)" onkeypress="return validateNumber(event)" id="opt1" maxlength="1" min="1" class="numeric text-center" style="border: solid 1px; border-color: black; width: 40px; height: 40px;" />
+                                                <input type="text" onkeyup="fnNextOTP(2)" onkeypress="return validateNumber(event)" id="opt2" maxlength="1" min="1" class="numeric text-center" style="border: solid 1px; border-color: black; width: 40px; height: 40px;" />
+                                                <input type="text" onkeyup="fnNextOTP(3)" onkeypress="return validateNumber(event)" id="opt3" maxlength="1" min="1" class="numeric text-center" style="border: solid 1px; border-color: black; width: 40px; height: 40px;" />
+                                                <input type="text" onkeyup="fnNextOTP(4)" onkeypress="return validateNumber(event)" id="opt4" maxlength="1" min="1" class="numeric text-center" style="border: solid 1px; border-color: black; width: 40px; height: 40px;" />
+                                                <input type="text" onkeyup="fnNextOTP(5)" onkeypress="return validateNumber(event)" id="opt5" maxlength="1" min="1" class="numeric text-center" style="border: solid 1px; border-color: black; width: 40px; height: 40px;" />
+                                                <input type="text" onkeyup="fnNextOTP(6)" onkeypress="return validateNumber(event)" id="opt6" maxlength="1" min="1" class="numeric text-center" style="border: solid 1px; border-color: black; width: 40px; height: 40px;" />
+                                                <input type="hidden" name="otpNumber" maxlength="6" id="otpNumber" required class="form-control" />
+                                            </div>
+                                        </div>
+
+                                        <label id="timer" style="font-size:12px;padding-left:53%;color:#26c4a2;" class="row col-form-label col-sm-9"></label>
+                                        <div class="text-center mb-1">
+                                            <span>Don't receive verification code? <a class="text-primary" onclick="fnResendCode('@Model.userInfo?.UserName')" href="javascript:void(0)">RESEND CODE</a></span><br /><br /><br />
+
+                                        </div>
+
+                                        <div class="text-center mb-5" style="margin-top:-46px">
+                                            <div class="">
+                                                <input class="btn btn-info  btn-sm btn-block" type="button" value="Verify OTP" style="background-color:#25C38C!important;color:#fff; border-radius: 50px;" id="varifyOtp" />
+                                            </div>
+                                        </div>
+                                    </div><br /> <br /> <br />
+                                    <div class="col-md-1 col-12 mb-5">
+
+                                    </div>
+                                </div>
+                            </form>
+
+                        </div><!--end row-->
+
+                    </div>
+
+                </div>
+            </div>
+        </div><!--end row-->
+    </div>
+</div>
+
+
+
+
+@section Scripts{
+    <script src="~/SweetAlert/sweetalert2.common.js"></script>
+    <script src="~/SweetAlert/sweetalert2.js"></script>
+    <script type="text/javascript">
+
+        function fnResendCode(id) {
+            var status = $('#timeOut').val();
+            if (status == 1) {
+                $.ajax({
+                    type: "Post",
+                    url: "/Auth/Account/ResendOTPCode2",
+                    data: { ids: id },
+                    success: function (response) {
+                        if (response == true) {
+                            swal('', 'পুনরায় OTP প্রেরণ করা হয়েছে', 'success');
+                        }
+                    }
+                });
+            }
+            else {
+                swal('দুঃখিত', 'পরবর্তী OTP এর জন্য ' + $('#timer').text() + ' মিনিট অপেক্ষা করুন', 'warning');
+            }
+        }
+
+    $('#varifyOtp').click(function () {
+        var data = $('#formId').serialize();
+            $.ajax({
+                url: "/Auth/Account/OTPVarified",
+                type: "POST",
+                data: data,
+                success: function (res) {
+                    if (res == 'success') {
+                        swal('Matched', 'OTP Verify Success', 'success').then(function () {
+                            window.location.href = "/Auth/Account/Login";
+                        });
+                    }
+                    else {
+                        swal('দুঃখিত', 'OTP Not Matched', 'warning');
+                    }
+                }
+            });
+        });
+
+        $(document).ready(function () {
+
+            let timerOn = true;
+
+            function timer(remaining) {
+                var m = Math.floor(remaining / 60);
+                var s = remaining % 60;
+
+                m = m < 10 ? '0' + m : m;
+                s = s < 10 ? '0' + s : s;
+                document.getElementById('timer').innerHTML = m + ':' + s;
+                remaining -= 1;
+
+                if (remaining >= 0 && timerOn) {
+                    setTimeout(function () {
+                        timer(remaining);
+                    }, 1000);
+                    return;
+                }
+                else {
+                    $('#timeOut').val(1);
+                }
+
+                if (!timerOn) {
+                    // Do validate stuff here
+                    return;
+                }
+
+                // Do timeout stuff here
+                otp = 0;
+                //alert('Timeout for otp');
+                //$("#otpErrorMsg").text('Timeout for otp');
+            }
+            timer(120);
+            var mobNum = '@Model.userInfo?.PhoneNumber';
+            var first3 = mobNum.substring(0, 5);
+            var last3 = mobNum.substring(mobNum.length - 3);
+            var mask = mobNum.substring(3, mobNum.length - 3).replace(/\d/g, "*");
+            $('#otpMobile').empty();
+            $('#otpMobile').append('('+first3 + mask + last3+')');
+        });
+
+    function validateNumber(e) {
+        const pattern = /^[0-9]$/;
+        return pattern.test(e.key)
+    }
+
+    function fnNextOTP(id) {
+            if (id == 1) {
+                $('#opt2').focus();
+            } else if (id == 2) {
+                $('#opt3').focus();
+            } else if (id == 3) {
+                $('#opt4').focus();
+            } else if (id == 4) {
+                $('#opt5').focus();
+            } else if (id == 5) {
+                $('#opt6').focus();
+            }
+            var otpCode = $('#opt1').val() + '' + $('#opt2').val() + '' + $('#opt3').val() + $('#opt4').val()+ $('#opt5').val()+ $('#opt6').val();
+            $('#UserOTPCode').val(otpCode);
+        }
+
+    </script>
+}

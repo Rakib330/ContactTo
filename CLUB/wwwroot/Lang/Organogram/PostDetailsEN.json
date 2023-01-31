@@ -1,0 +1,14 @@
+{
+  "title": "Post Details",
+  "id": "ID",
+  "reportingBossId": "Boss ID",
+  "post": "Post",
+  "organization": "Organization Name",
+  "reportingBoss": "Reporting Boss",
+  "employee": "Employee",
+  "postingType": "Posting Type",
+  "employmentType": "Employment Type",
+  "assaignDate": "Assaign Date",
+  "remarks": "Remarks",
+  "action": "Action"
+}

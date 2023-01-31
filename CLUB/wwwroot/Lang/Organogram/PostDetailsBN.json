@@ -1,0 +1,14 @@
+﻿{
+  "title": "পোস্ট বর্ণনা",
+  "id": "আইডি",
+  "reportingBossId": "বসের আইডি",
+  "post": "পোস্ট",
+  "organization": "সংগঠন",
+  "reportingBoss": "রিপোর্টিং বস",
+  "employee": "এমপ্লয়ী",
+  "postingType": "পোস্টিং টাইপ",
+  "employmentType": "এমপ্লয়মেন্ট টাইপ",
+  "assaignDate": "এসাইন তারিখ",
+  "remarks": "মন্তব্য",
+  "action": "প্রক্রিয়া"
+}

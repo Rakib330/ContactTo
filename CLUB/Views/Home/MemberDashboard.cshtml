@@ -1,0 +1,201 @@
+﻿@model HomeViewModel
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+@section Style{
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+
+        .carousel-inner img {
+            width: 100%;
+            height: 100%;
+        }
+
+        .opName {
+            color: #333;
+        }
+
+        .cardHover:hover {
+            /*background-color: #2e4d95 !important;*/
+            background-image: linear-gradient(180deg,#514A9D 0%,#24C6DC 70%) !important;
+            color: #fff !important;
+        }
+
+            .cardHover:hover .opName {
+                color: #fff !important;
+            }
+    </style>
+}
+<!-- Tab panes -->
+<div class="container-fluid">
+    <div class="card" style="width: 100%;">
+        <div class="card-body">
+            <div class="container">
+                <form>
+                    <br />
+                    <br />
+
+                    <div class="row">
+
+                        <div class="col-md-3  col-sm-6">
+                            <div class="form-group text-center card" style="background-color:#fff;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;border-color:lightgray;">
+                                <input type="hidden" class="form-control" name="id" id="Empid" value="@Model.id" readonly>
+                                <a class="text-center btn cardHover  btn-default py-3" onclick="GotoView('info')" style="text-decoration:none;">
+                                    <i class="fa fa-user  fa-3x "></i>
+                                    <br /><span class="opName" style="font-size: 13pt; font-weight: 700;" name="employeeInfo">Profile</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3  col-sm-6">
+                            <div class="form-group text-center card" style="background-color:#fff;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;border-color:lightgray;">
+                                <a class="text-center btn cardHover  btn-default py-3" onclick="GotoView('event')" style="text-decoration:none;">
+                                    <i class="fa fa-calendar-o fa-3x "></i>
+                                    <br /><span class="opName" style="font-size: 13pt; font-weight: 700;" name="addressInfo">@Model.fLang.eventInfo</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3  col-sm-6">
+                            <div class="form-group text-center card" style="background-color:#fff;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;border-color:lightgray;">
+                                <a class="text-center btn cardHover  btn-default py-3" onclick="GotoView('fees')" style="text-decoration:none;">
+                                    <i class="fa fa-money fa-3x "></i>
+                                    <br /><span class="opName" style="font-size: 13pt; font-weight: 700;" name="educational">Payment</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3  col-sm-6">
+                            <div class="form-group text-center card" style="background-color:#fff;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;border-color:lightgray;">
+                                <a class="text-center btn cardHover  btn-default py-3" onclick="GotoView('news')" style="text-decoration:none;">
+                                    <i class="fa fa-newspaper-o fa-3x "></i>
+                                    <br /><span class="opName" style="font-size: 13pt; font-weight: 700;" name="spouseInfo">@Model.fLang.news</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3  col-sm-6">
+                            <div class="form-group text-center card" style="background-color:#fff;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;border-color:lightgray;">
+                                <a class="text-center btn cardHover  btn-default py-3" onclick="GotoView('notice')" style="text-decoration:none;">
+                                    <i class="fa fa-file-text-o fa-3x "></i>
+                                    <br /><span class="opName" style="font-size: 13pt; font-weight: 700;" name="employeeInfo">@Model.fLang.notice</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3  col-sm-6">
+                            <div class="form-group text-center card" style="background-color:#fff;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;border-color:lightgray;">
+                                <a class="text-center btn cardHover  btn-default py-3" onclick="GotoView('gallery')" style="text-decoration:none;">
+                                    <i class="fa fa-picture-o fa-3x "></i>
+                                    <br /><span class="opName" style="font-size: 13pt; font-weight: 700;" name="childrenInfo">@Model.fLang.image</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3  col-sm-6">
+                            <div class="form-group text-center card" style="background-color:#fff;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;border-color:lightgray;">
+                                <a class="text-center btn cardHover  btn-default py-3" onclick="GotoView('video')" style="text-decoration:none;">
+                                    <i class="fa fa-video-camera fa-3x "></i>
+                                    <br /><span class="opName" style="font-size: 13pt; font-weight: 700;" name="childrenInfo">@Model.fLang.video</span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-3  col-sm-6">
+                            <div class="form-group text-center card" style="background-color:#fff;box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;border-color:lightgray;">
+                                <a class="text-center btn cardHover  btn-default py-3" onclick="GotoView('greeting')" style="text-decoration:none;">
+                                    <i class="fa fa-birthday-cake fa-3x "></i>
+                                    <br /><span class="opName" style="font-size: 13pt; font-weight: 700;" name="childrenInfo">@Model.fLang.greeting</span>
+                                </a>
+                            </div>
+                        </div>
+                       </div>
+</form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Logout Modal-->
+<div class="modal fade" id="WelcomeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background:#BFCED5;margin-bottom:-2px;">
+                <img src="~/images/BECL Logo.png" style="height:50px; width:70px;" />
+                <span style="font-weight: bolder; color: darkblue; font-size: 18pt; padding-left: 5px;margin-top: 7px;">Bangladesh Engineers Club Ltd.</span>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" style="background-image: url('images/welcome.png');background-repeat: no-repeat;background-size:cover ;  min-height: 50vh;">
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        var Message = "@Html.Raw(Model.Message)";
+        $(document).ready(function () {
+            //if (localStorage.getItem('WelcomeModal') != "viewed")
+            //    $("#WelcomeModal").modal("show");
+            //localStorage.setItem('WelcomeModal', "viewed");
+            //if (Message != "" && Message != undefined && Message != null) Swal.fire(Message);
+        });
+
+        function ShowDetails() {
+            $("#dashboardDataViewModal").modal('show');
+        }
+
+        function getEmployee() {
+            var id = $("#employeeId").val();
+            if (id == "") {
+                alert("Please Enter Employee Id !!");
+            } else {
+                Common.Ajax('GET', '/global/api/employeeByCode/' + id, [], 'json', ajaxEmployee);
+            }
+        }
+
+        function ajaxEmployee(response) {
+
+            if (response) {
+                console.log(response.nameEnglish);
+                $("#employeeName").val(response.nameEnglish);
+                $("#id").val(response.id);
+            } else {
+                alert("Please Enter Correct Employee Id");
+                $("#employeeName").val('');
+                $("#id").val('');
+                $("#employeeId").val('');
+            }
+        }
+
+        function GotoView(section) {
+            var number = $("#Empid").val();
+            //if (number == "" || number == "0") {
+            //    alert("Please Select Employee !!")
+            //    window.location.href = "/";
+            //} else {
+                if (section == "info") {
+                    location.replace("/Employee/Info/EditGrid/" + number);
+                } else if (section == "event") {
+                    //location.replace("/Home/RegisterClubNew");
+                    location.replace("/Home/GridMenuPage?moduleId=3&perentId=14");
+                } else if (section == "news") {
+                    location.replace("/News/NewsInfo/NewsList");
+                } else if (section == "notice") {
+                    location.replace("/Notice/Notice/Create");
+                } else if (section == "fees") {
+                    location.replace("/Employee/Fees/Index");
+                } else if (section == "gallery") {
+                    location.replace("/Gallery/Gallery/ImageGallery");
+                } else if (section == "video") {
+                    location.replace("/Gallery/Gallery/VideoGallery");
+                } else if (section == "greeting") {
+                    location.replace("/Grettings/Grettings");
+                } else if (section == "forum") {
+                    location.replace("/Forum/Topic");
+                } else if (section == "sms") {
+                    location.replace("/Bulk/BulkSMSEmail/");
+                }
+            //}
+        }
+
+    </script>
+}

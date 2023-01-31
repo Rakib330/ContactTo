@@ -1,0 +1,85 @@
+﻿@model RoleViewModel
+@{
+    ViewData["Title"] = "Role List";
+    Layout = "~/Areas/Punishment/Views/Shared/_CPLayout.cshtml";
+}
+
+<style>
+    .redStar {
+        color: red;
+    }
+</style>
+
+<br />
+
+<div class="row clearfix">
+
+    <div class="col-6">
+        <div class="card mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">New Role</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <form asp-area="Auth" asp-controller="RoleController" asp-action="Index" method="post" data-parsley-validate="parsley">
+
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+
+                    <div class="form-group row">
+                        <label for="bookName" class="col-sm-2 col-form-label">Name <span style="float:right;" class="redStar">*</span></label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="bookName" value="@Model.name" name="name" data-parsley-required="true" data-parsley-maxlength="100">
+                        </div>
+                    </div>
+                    <hr />
+                    <button data-toggle="tooltip" title="Save" type="submit" value="Submit" class="btn btn-success btn-lg" style="float:right; margin-top:5px;"><i class="fas fa-save"></i></button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6">
+        <div class="card mb-4">
+            <!-- Card Header - Dropdown -->
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">All Roles</h6>
+            </div>
+            <!-- Card Body -->
+            <div class="card-body" style="min-height:172px;">
+                <table class="table table-striped table-bordered" id="allEmployeeListTable">
+                    <thead>
+                        <tr>
+                            <th>#SL</th>
+                            <th>Role Name</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int sl = 1;
+                        }
+                        @foreach (var data in Model.roles)
+                        {
+
+                            <tr>
+                                <td>@sl</td>
+                                <td>@data</td>
+                            </tr>
+                            sl++;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section ScriptCP{
+    <script>
+        $(document).ready(function () {
+        });
+    </script>
+}
+

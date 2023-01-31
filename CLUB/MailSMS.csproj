@@ -1,0 +1,134 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <UserSecretsId>aspnet-CLUB-91A0FDBB-58D4-4089-99BC-830070138617</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Areas\ACR\**" />
+    <Compile Remove="Areas\Assignment\**" />
+    <Compile Remove="Areas\Attendence\**" />
+    <Compile Remove="Areas\AwardPublication\**" />
+    <Compile Remove="Areas\DisciplineInvestigation\**" />
+    <Compile Remove="Areas\Leave\**" />
+    <Compile Remove="Areas\Library\**" />
+    <Compile Remove="Areas\Organogram\**" />
+    <Compile Remove="Areas\PromotionAndTransfer\**" />
+    <Compile Remove="Areas\Punishment\**" />
+    <Compile Remove="Areas\Recruitment\**" />
+    <Compile Remove="Areas\Report\**" />
+    <Compile Remove="Areas\RetirementAndTermination\**" />
+    <Compile Remove="Areas\Reward\**" />
+    <Compile Remove="Areas\TrainingModule\**" />
+    <Compile Remove="Areas\TrainingNew\**" />
+    <Compile Remove="Areas\Training\**" />
+    <Compile Remove="Areas\Transfer\**" />
+    <Compile Remove="Areas\VehicleInfo\**" />
+    <Compile Remove="Services\RetirementAndTermination\**" />
+    <Content Remove="Areas\ACR\**" />
+    <Content Remove="Areas\Assignment\**" />
+    <Content Remove="Areas\Attendence\**" />
+    <Content Remove="Areas\AwardPublication\**" />
+    <Content Remove="Areas\DisciplineInvestigation\**" />
+    <Content Remove="Areas\Leave\**" />
+    <Content Remove="Areas\Library\**" />
+    <Content Remove="Areas\Organogram\**" />
+    <Content Remove="Areas\PromotionAndTransfer\**" />
+    <Content Remove="Areas\Punishment\**" />
+    <Content Remove="Areas\Recruitment\**" />
+    <Content Remove="Areas\Report\**" />
+    <Content Remove="Areas\RetirementAndTermination\**" />
+    <Content Remove="Areas\Reward\**" />
+    <Content Remove="Areas\TrainingModule\**" />
+    <Content Remove="Areas\TrainingNew\**" />
+    <Content Remove="Areas\Training\**" />
+    <Content Remove="Areas\Transfer\**" />
+    <Content Remove="Areas\VehicleInfo\**" />
+    <Content Remove="Services\RetirementAndTermination\**" />
+    <EmbeddedResource Remove="Areas\ACR\**" />
+    <EmbeddedResource Remove="Areas\Assignment\**" />
+    <EmbeddedResource Remove="Areas\Attendence\**" />
+    <EmbeddedResource Remove="Areas\AwardPublication\**" />
+    <EmbeddedResource Remove="Areas\DisciplineInvestigation\**" />
+    <EmbeddedResource Remove="Areas\Leave\**" />
+    <EmbeddedResource Remove="Areas\Library\**" />
+    <EmbeddedResource Remove="Areas\Organogram\**" />
+    <EmbeddedResource Remove="Areas\PromotionAndTransfer\**" />
+    <EmbeddedResource Remove="Areas\Punishment\**" />
+    <EmbeddedResource Remove="Areas\Recruitment\**" />
+    <EmbeddedResource Remove="Areas\Report\**" />
+    <EmbeddedResource Remove="Areas\RetirementAndTermination\**" />
+    <EmbeddedResource Remove="Areas\Reward\**" />
+    <EmbeddedResource Remove="Areas\TrainingModule\**" />
+    <EmbeddedResource Remove="Areas\TrainingNew\**" />
+    <EmbeddedResource Remove="Areas\Training\**" />
+    <EmbeddedResource Remove="Areas\Transfer\**" />
+    <EmbeddedResource Remove="Areas\VehicleInfo\**" />
+    <EmbeddedResource Remove="Services\RetirementAndTermination\**" />
+    <None Remove="Areas\ACR\**" />
+    <None Remove="Areas\Assignment\**" />
+    <None Remove="Areas\Attendence\**" />
+    <None Remove="Areas\AwardPublication\**" />
+    <None Remove="Areas\DisciplineInvestigation\**" />
+    <None Remove="Areas\Leave\**" />
+    <None Remove="Areas\Library\**" />
+    <None Remove="Areas\Organogram\**" />
+    <None Remove="Areas\PromotionAndTransfer\**" />
+    <None Remove="Areas\Punishment\**" />
+    <None Remove="Areas\Recruitment\**" />
+    <None Remove="Areas\Report\**" />
+    <None Remove="Areas\RetirementAndTermination\**" />
+    <None Remove="Areas\Reward\**" />
+    <None Remove="Areas\TrainingModule\**" />
+    <None Remove="Areas\TrainingNew\**" />
+    <None Remove="Areas\Training\**" />
+    <None Remove="Areas\Transfer\**" />
+    <None Remove="Areas\VehicleInfo\**" />
+    <None Remove="Services\RetirementAndTermination\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Services\Attendance\EmpAttendanceService.cs" />
+    <Compile Remove="Services\Attendance\Interfaces\IEmpAttendanceService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DinkToPdf" Version="1.0.8" />
+    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
+    <PackageReference Include="Haukcode.DinkToPdf" Version="1.1.2" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" PrivateAssets="All" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.0" />
+    <PackageReference Include="Twilio" Version="6.2.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\API\Data\" />
+    <Folder Include="Areas\API\Views\" />
+    <Folder Include="Areas\Auth\Data\" />
+    <Folder Include="Areas\Bulk\Data\" />
+    <Folder Include="wwwroot\DecActionFiles\" />
+    <Folder Include="wwwroot\EmailFiles\" />
+    <Folder Include="wwwroot\uploads\" />
+    <Folder Include="wwwroot\NewFolder\" />
+    <Folder Include="wwwroot\Notice\" />
+    <Folder Include="wwwroot\pdf\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Areas\Auth\Views\_ViewImports.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="libwkhtmltox.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  
+  <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JSONSchema="" /></VisualStudio></ProjectExtensions>
+  
+</Project>

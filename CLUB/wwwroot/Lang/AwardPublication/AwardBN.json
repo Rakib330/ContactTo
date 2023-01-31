@@ -1,0 +1,11 @@
+﻿{
+  "awardEntry": "পুরস্কার তালিকা",
+  "employeeId": "এমপ্লয়ি আইডি",
+  "employeeName": "এমপ্লয়ির নাম",
+  "designation": "পদবি",
+  "awardName": "পুরুস্কারের নাম",
+  "purpose": "উদ্দেশ্য ",
+  "awardDate": "পুরুস্কারের তারিখ",
+  "action": "প্রক্রিয়া",
+  "status": "অবস্থা"
+}

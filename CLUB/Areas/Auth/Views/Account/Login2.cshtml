@@ -1,0 +1,193 @@
+﻿@using System.Collections.Generic
+@using System.Linq
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Http.Authentication
+@model LogInViewModel
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+	Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+
+	<link rel="icon" href="~/images/Key-Club-International-Logo.jpg" type="image/x-icon" />
+
+	<meta name="viewport" content="width=device-width" />
+	<title>Login</title>
+
+	<link href="~/vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+	<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+	<link href="~/css/sb-admin-2.min.css" rel="stylesheet">
+	<style>
+		#registerDiv {
+			width: 200px;
+			height: 200px;
+			background: #F7F9F9;
+			position: absolute;
+			left: 50px;
+			top: 50px;
+			border-radius: 50%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			animation: blinker 5s infinite;
+		}
+
+		@@-webkit-keyframes blinker {
+
+			to {
+				background-color: #979A9A;
+			}
+		}
+
+        /*.danger {
+            background-color: #FF0040;
+            color: #FFFFFF;
+        }
+
+            .danger:hover {
+                background-color: #EB003B;
+                color: #FFFFFF;
+            }*/
+
+
+        /*.button-1 {
+            background-color: #EA4C89;
+            border-radius: 8px;
+            border-style: none;
+            box-sizing: border-box;
+            color: #FFFFFF;
+            cursor: pointer;
+            display: inline-block;
+            font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            height: 40px;
+            line-height: 20px;
+            list-style: none;
+            margin: 0;
+            outline: none;
+            padding: 10px 16px;
+            position: relative;
+            text-align: center;
+            text-decoration: none;
+            transition: color 100ms;
+            vertical-align: baseline;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+            .button-1:hover,
+            .button-1:focus {
+                background-color: #F082AC;
+            }*/
+        .button-34 {
+            background: #5E5DF0;
+            border-radius: 999px;
+            box-shadow: #5E5DF0 0 10px 20px -10px;
+            box-sizing: border-box;
+            color: #FFFFFF;
+            cursor: pointer;
+            font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
+            font-size: 14px;
+            font-weight: 100;
+            line-height: 24px;
+            opacity: 1;
+            outline: 0 solid transparent;
+            padding: 14px 18px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            width: fit-content;
+            word-break: break-word;
+            border: 0;
+        }
+
+     
+
+
+	</style>
+</head>
+
+<body style="background-image: linear-gradient(180deg, #24C6DC 0%, #514A9D 70%)">
+	<div class="container">
+		@*<a href="/Home/RegisterClubAllMember">
+			<div id="registerDiv">
+                <h5 class="text-center" style="color: #A91919; margin: 15px;">বাংলাদেশ ইন্জিনিয়ার্স ক্লাব লিমিটেড এর ডে আউট ও সাংস্কৃতিক সন্ধ্যা ২০২৩ রেজিস্ট্রেশন</h5>
+                
+			</div>
+		</a>*@
+		<!-- Outer Row -->
+		<div class="row justify-content-center">
+			<div class="col-xl-6 col-lg-12 col-md-9">
+				<div class="card o-hidden border-0 shadow-lg my-5">
+					<div class="card-body p-0">
+						<!-- Nested Row within Card Body -->
+						<div class="row">
+							@*<div style="background-image:url(/images/Cover.jpg);background-repeat:no-repeat;background-size:contain;" class="col-lg-6 d-none d-lg-block text-center"></div>*@
+							<div class="col-lg-12">
+								<div class="p-5">
+									<div class="text-center">
+                                        <i style="color:blue" class="fa fa-envelope fa-4x"></i>
+										<h5 style="color:black;margin-bottom: 12px; font-weight: 700;">Welcome!! To Mail SMS Systems</h5>
+									</div>
+
+                                    <form class="user" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" data-parsley-validate="parsley">
+                                        <div asp-validation-summary="All" class="text-danger"></div>
+                                        <div class="form-group">
+                                            <input type="text" class="form-control form-control-user" id="exampleInputEmail" name="Name" aria-describedby="emailHelp" placeholder="ID" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="password" class="form-control form-control-user" name="Password" id="exampleInputPassword" placeholder="Password" required>
+                                        </div>
+                                        <div class="form-group" style="display:none;">
+                                            <div class="custom-control custom-checkbox small">
+                                                <input type="checkbox" name="RememberMe" class="custom-control-input" id="customCheck" value="true">
+                                                <label class="custom-control-label" for="customCheck">Remember Me</label>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-secondary btn-user btn-block pt-2 pb-2" style="font-weight:bold;font-size:1.2em;">
+                                            Login
+                                        </button>
+                                        <br />
+
+                                        <p>Do Not Have Account? <a href="/Auth/Account/Register">Registration</a></p>
+                                        <p class="d-flex text-center"><a href="/Auth/Account/ForgotPassword">Forgot password</a></p>
+                                        <br />
+                                        @*<a href="/Home/RegisterClubAllMember">Day Out Registration</a>*@
+                                        <div class="form-group">
+                                            <div>
+                                                <h5 style="float:left;color:darkblue;font-weight:bolder;">Developed By </h5>
+                                                <a target="_blank" href="https://www.opus-bd.com/"><img src="~/images/OpusLogoFinal.png" style="height:30px;float:right;" /></a>
+                                            </div>
+                                        </div>
+
+                                        <br />
+
+
+
+                                        <br /><br />
+                                        <span style="color:darkblue;font-size:12px;">Help Line -> +8801700869598</span>
+                                    </form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<script src="~/vendor/jquery/jquery.min.js"></script>
+	<script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+	<script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
+	<script src="~/js/sb-admin-2.min.js"></script>
+
+</body>
+</html>

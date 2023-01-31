@@ -1,0 +1,11 @@
+﻿{
+  "title": "বই ধারকারীর তালিকা",
+  "bookName": "বইয়ের নাম",
+  "borrowerName": "ধারকারীর নাম",
+  "borrowDate": "ধার করার তারিখ",
+  "returnDate": "ফেরত তারিখ",
+  "designation": "পদবি",
+  "noOfCopy": "কপি সংখ্যা",
+  "action": "প্রক্রিয়া",
+  "iD": "আইডি"
+}
